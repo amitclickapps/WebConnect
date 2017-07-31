@@ -1,10 +1,10 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 
-//group='com.github.amitclickapps'
+group='com.github.amitclickapps'
 //group = 'com.retrofit-wrapper'
-group='com.github.jitpack'
-version = '1.0'
+//group='com.github.jitpack'
+//version = '1.0'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
