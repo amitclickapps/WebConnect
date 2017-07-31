@@ -54,14 +54,5 @@ public class WebConnect {
         return new Builder(context, url);
     }
 
-    /**
-     * With builder.
-     *
-     * @param context the context
-     * @param url     the url
-     * @return the builder
-     */
-    public static Builder with(@NonNull Context context, @NonNull String url, String test) {
-        return new Builder(context, url);
-    }
+
 }
