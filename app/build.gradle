@@ -1,10 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
+group = 'com.github.amitclickapps'
 
-group='com.github.amitclickapps'
-//group = 'com.retrofit-wrapper'
-//group='com.github.jitpack'
-version = '0.0.1'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.2"
@@ -42,7 +39,7 @@ task sourcesJar(type: Jar) {
 }
 
 task javadoc(type: Javadoc) {
-    failOnError  false
+    failOnError false
     source = android.sourceSets.main.java.sourceFiles
     classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
     classpath += configurations.compile
