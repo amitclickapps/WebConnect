@@ -38,8 +38,8 @@ public class WebConnect {
      * @param url     the url
      * @return the builder
      */
-    public static Builder with(@NonNull Activity context, @NonNull String url) {
-        return new Builder(context, url);
+    public static WebParam.Builder with(@NonNull Activity context, @NonNull String url) {
+        return new WebParam.Builder(context, url);
 
     }
 
@@ -50,9 +50,14 @@ public class WebConnect {
      * @param url     the url
      * @return the builder
      */
-    public static Builder with(@NonNull Context context, @NonNull String url) {
-        return new Builder(context, url);
+    public static WebParam.Builder with(@NonNull Context context, @NonNull String url) {
+        return new WebParam.Builder(context, url);
     }
 
-
+    /*
+     * Connect
+     */
+    public static <T> T connect(Class<T> cls, WebParam webParam) {
+        return new RetrofitManager().createService(cls, webParam);
+    }
 }
