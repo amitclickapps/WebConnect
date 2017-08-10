@@ -58,7 +58,7 @@ public class RetrofitManager {
      * @param webParam      the web param
      * @return the t
      */
-    public <T> T createService(Class<T> interfaceFile, final WebParam webParam) {
+    protected <T> T createService(Class<T> interfaceFile, final WebParam webParam) {
         if (BuildConfig.DEBUG) {
             mInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         }

@@ -57,7 +57,7 @@ public class WebConnect {
     /*
      * Connect
      */
-    public static <T> T connect(Class<T> cls, WebParam webParam) {
+    public static <T> T connect(@NonNull Class<T> cls, @NonNull WebParam webParam) {
         return new RetrofitManager().createService(cls, webParam);
     }
 }
