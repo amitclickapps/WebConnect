@@ -23,5 +23,31 @@
                     }
                 })
                 .build();
-        WebConnect.connect(Services.class,webParam).friends().subscribe(new Callback<Object>(webParam));
+        WebConnect.connect(Services.class,webParam).friends().subscribe(new Callback<>(webParam));
+```
+### Interface for service
+```
+public interface Services {
+
+    @GET("friends")
+    Observable<Response<Object>> friends();
+}
+```
+
+Download
+--------
+Add the JitPack repository to your root build.gradle:
+
+```groovy
+	allprojects {
+		repositories {
+			maven { url "https://jitpack.io" }
+		}
+	}
+```
+Add the Gradle dependency:
+```groovy
+	dependencies {
+		compile 'com.github.amitclickapps:retrofit-util:1.0.2'
+	}
 ```
