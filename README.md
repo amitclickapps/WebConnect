@@ -23,7 +23,10 @@
                     }
                 })
                 .build();
-        WebConnect.connect(Services.class,webParam).friends().subscribe(new Callback<>(webParam));
+        WebConnect.connect(Services.class,webParam).friends()
+        .subscribeOn(Schedulers.io())
+        .observeOn(AndroidSchedulers.mainThread())
+        .subscribe(new Callback<>(param));
 ```
 ### Interface for service
 ```
