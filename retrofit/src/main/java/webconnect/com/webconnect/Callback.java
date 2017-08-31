@@ -97,7 +97,7 @@ public class Callback<T> implements Observer<Response<T>> {
                 } else if (t.getClass().getName().contains(CertificateException.class.getName())) {
                     errors = webParam.getContext().getString(R.string.error_certificate_exception);
                 } else {
-                    errors = t.getMessage();
+                    errors = t.toString();
                 }
                 webParam.getCallback().onError(errors, errors, webParam.getTaskId(), null);
             }
