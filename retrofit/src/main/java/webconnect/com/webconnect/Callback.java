@@ -7,9 +7,6 @@ package webconnect.com.webconnect;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -73,12 +70,15 @@ public class Callback<T> implements Observer<Response<T>> {
                 } else {
                     object = res;
                 }
-                webParam.getCallback().onError(object, res, webParam.getTaskId(), response);
+                webParam.getCallback().onError(object, res, webParam.getTaskId());
 
             }
         } catch (Exception e) {
             e.printStackTrace();
-            webParam.getCallback().onError(e, res, webParam.getTaskId(), response);
+            if (BuildConfig.DEBUG) {
+                Log.e(getClass().getSimpleName(), e.getMessage());
+            }
+            webParam.getCallback().onError(e, res, webParam.getTaskId());
         }
     }
 
@@ -99,13 +99,14 @@ public class Callback<T> implements Observer<Response<T>> {
                 } else {
                     errors = t.toString();
                 }
-                webParam.getCallback().onError(errors, errors, webParam.getTaskId(), null);
+                webParam.getCallback().onError(errors, errors, webParam.getTaskId());
             }
         } catch (Exception e) {
             e.printStackTrace();
             if (BuildConfig.DEBUG) {
                 Log.e(getClass().getSimpleName(), e.getMessage());
             }
+            webParam.getCallback().onError(e.getMessage(), e.getMessage(), webParam.getTaskId());
         }
     }
 

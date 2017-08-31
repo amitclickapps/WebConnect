@@ -30,9 +30,8 @@ public class WebHandler {
          * @param object   the object
          * @param error    the error
          * @param taskId   the task id
-         * @param response the status code
          */
-        <T> void onError(@Nullable T object, String error, int taskId, retrofit2.Response response);
+        <T> void onError(@Nullable T object, String error, int taskId);
     }
 
     /**
@@ -46,7 +45,7 @@ public class WebHandler {
         }
 
         @Override
-        public <T> void onError(@Nullable T object, String error, int taskId, retrofit2.Response response) {
+        public <T> void onError(@Nullable T object, String error, int taskId) {
 
         }
     }

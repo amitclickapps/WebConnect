@@ -1,6 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'com.github.dcendents.android-maven'
 group = 'com.github.amitclickapps'
+version = '1.0.3'
 
 android {
     compileSdkVersion 25
@@ -10,6 +11,9 @@ android {
         targetSdkVersion 25
     }
     buildTypes {
+        debug {
+            debuggable true
+        }
         release {
             minifyEnabled false
             debuggable false
