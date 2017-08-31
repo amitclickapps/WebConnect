@@ -53,7 +53,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         }
 
                         @Override
-                        public <T> void onError(@Nullable T object, String error, int taskId, Response response) {
+                        public <T> void onError(@Nullable T object, String error, int taskId) {
                             Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
                         }
                     }).requestParam(requestMap).build();
