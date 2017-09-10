@@ -27,7 +27,7 @@ public class WebParam implements Serializable {
     private String url, /**
      * The Base url.
      */
-    baseUrl;
+    baseUrl, pathSegment = "", pathSegmentParam = "";
     /**
      * The Http type.
      */
@@ -78,7 +78,11 @@ public class WebParam implements Serializable {
         PUT, /**
          * Delete http type.
          */
-        DELETE
+        DELETE,
+        /**
+         *
+         */
+        MULTIPART
     }
 
 
@@ -130,6 +134,13 @@ public class WebParam implements Serializable {
         return taskId;
     }
 
+    public String getPathSegment() {
+        return pathSegment;
+    }
+
+    public String getPathSegmentParam() {
+        return pathSegmentParam;
+    }
 
     public static class Builder {
         private WebParam webParam;
@@ -147,9 +158,26 @@ public class WebParam implements Serializable {
             webParam.url = url;
         }
 
+        public Builder(@NonNull Context context, @NonNull String url, @NonNull String pathSegment) {
+            webParam = new WebParam();
+            webParam.context = context;
+            webParam.url = url;
+            webParam.pathSegment = pathSegment;
+        }
+
 
         public Builder baseUrl(@NonNull String url) {
             webParam.baseUrl = url;
+            return this;
+        }
+
+        public Builder pathSegment(@NonNull String pathSegment) {
+            webParam.pathSegment = pathSegment;
+            return this;
+        }
+
+        public Builder pathSegmentParam(@NonNull String pathSegmentParam) {
+            webParam.pathSegmentParam = pathSegmentParam;
             return this;
         }
 
@@ -201,8 +229,35 @@ public class WebParam implements Serializable {
             return this;
         }
 
+        @Deprecated
         public WebParam build() {
             return webParam;
+        }
+
+        /**
+         * To use this have to set these values
+         * <p>
+         * httpType(HttpType) <br/>
+         * pathSegment(String) <br/>
+         * pathSegment(String)<br/>
+         * <p>
+         *
+         * @see #httpType(HttpType)
+         * @see #pathSegment(String)
+         * @see #pathSegmentParam(String)
+         */
+        public void connect() {
+            if (webParam.httpType == HttpType.GET) {
+                APIExecutor.GET.execute(webParam);
+            } else if (webParam.httpType == HttpType.POST) {
+                APIExecutor.POST.execute(webParam);
+            } else if (webParam.httpType == HttpType.PUT) {
+                APIExecutor.PUT.execute(webParam);
+            } else if (webParam.httpType == HttpType.DELETE) {
+                APIExecutor.DELETE.execute(webParam);
+            } else {
+                APIExecutor.MULTIPART.execute(webParam);
+            }
         }
     }
 }

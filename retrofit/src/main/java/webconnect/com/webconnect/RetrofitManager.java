@@ -1,10 +1,7 @@
 package webconnect.com.webconnect;
 
 import android.text.TextUtils;
-import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import org.apache.commons.io.IOUtils;
@@ -13,17 +10,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
-import java.net.ConnectException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
-import java.security.cert.CertificateException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
-import io.reactivex.Observer;
-import io.reactivex.annotations.NonNull;
-import io.reactivex.disposables.Disposable;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -59,11 +48,10 @@ public class RetrofitManager {
      * @return the t
      */
     protected <T> T createService(Class<T> interfaceFile, final WebParam webParam) {
-        if (BuildConfig.DEBUG) {
-            mInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        }
-        mOkHttpClientBuilder.connectTimeout(Configuration.getConnectTimeoutMillis(), TimeUnit.MILLISECONDS);
-        mOkHttpClientBuilder.readTimeout(Configuration.getReadTimeoutMillis(), TimeUnit.MILLISECONDS);
+        mInterceptor.setLevel(ApiConfiguration.isDebug() ?
+                HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
+        mOkHttpClientBuilder.connectTimeout(ApiConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
+        mOkHttpClientBuilder.readTimeout(ApiConfiguration.getReadTimeOut(), TimeUnit.MILLISECONDS);
         mOkHttpClientBuilder.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
@@ -77,7 +65,7 @@ public class RetrofitManager {
             }
         });
         mOkHttpClientBuilder.addInterceptor(mInterceptor);
-        String baseUrl = Configuration.getBaseUrl();
+        String baseUrl = ApiConfiguration.getBaseUrl();
         if (!TextUtils.isEmpty(webParam.getBaseUrl())) {
             baseUrl = webParam.getBaseUrl();
         }
@@ -85,7 +73,7 @@ public class RetrofitManager {
                 .baseUrl(baseUrl)
                 .addConverterFactory(StringConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(Configuration.getGson()));
+                .addConverterFactory(GsonConverterFactory.create(ApiConfiguration.getGson()));
         builder.client(mOkHttpClientBuilder.build());
         Retrofit retrofit = builder.build();
         return retrofit.create(interfaceFile);
@@ -111,7 +99,7 @@ public class RetrofitManager {
         }
 
         /**
-         * The type Configuration service converter.
+         * The type ApiConfiguration service converter.
          */
         class ConfigurationServiceConverter implements Converter<ResponseBody, String> {
 

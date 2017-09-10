@@ -54,9 +54,21 @@ public class WebConnect {
         return new WebParam.Builder(context, url);
     }
 
+    /**
+     * With builder.
+     *
+     * @param context the context
+     * @param url     the url
+     * @return the builder
+     */
+    public static WebParam.Builder with(@NonNull Context context, @NonNull String url, @NonNull String pathSegment) {
+        return new WebParam.Builder(context, url);
+    }
+
     /*
      * Connect
      */
+    @Deprecated
     public static <T> T connect(@NonNull Class<T> cls, @NonNull WebParam webParam) {
         return new RetrofitManager().createService(cls, webParam);
     }

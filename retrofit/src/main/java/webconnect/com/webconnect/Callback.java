@@ -53,9 +53,9 @@ public class Callback<T> implements Observer<Response<T>> {
                 res = response.body().toString();
                 if (webParam.getModel() != null
                         && !TextUtils.isEmpty(res)) {
-                    object = Configuration.getGson().fromJson(res, webParam.getModel());
+                    object = ApiConfiguration.getGson().fromJson(res, webParam.getModel());
                 } else if (!TextUtils.isEmpty(res)) {
-                    object = Configuration.getGson().fromJson(res, Object.class);
+                    object = ApiConfiguration.getGson().fromJson(res, Object.class);
                 } else {
                     object = res;
                 }
@@ -64,9 +64,9 @@ public class Callback<T> implements Observer<Response<T>> {
                 res = response.errorBody().string();
                 if (webParam.getError() != null
                         && !TextUtils.isEmpty(res)) {
-                    object = Configuration.getGson().fromJson(res, webParam.getError());
+                    object = ApiConfiguration.getGson().fromJson(res, webParam.getError());
                 } else if (!TextUtils.isEmpty(res)) {
-                    object = Configuration.getGson().fromJson(res, Object.class);
+                    object = ApiConfiguration.getGson().fromJson(res, Object.class);
                 } else {
                     object = res;
                 }
