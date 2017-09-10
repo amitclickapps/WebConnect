@@ -42,10 +42,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = view.getId();
         if (id == R.id.button) {
             Map<String, String> requestMap = new LinkedHashMap<>();
-//            requestMap.put("id", "1");
             WebConnect.with(this, ENDPOINT_POST, "posts")
                     .httpType(WebParam.HttpType.GET)
-                    .pathSegmentParam("1")
+//                    .pathSegmentParam("1")
                     .callback(new WebHandler.OnWebCallback() {
                         @Override
                         public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
@@ -58,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         public <T> void onError(@Nullable T object, String error, int taskId) {
                             Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
                         }
-                    }).requestParam(requestMap).connect();
+                    }).connect();
 //            Executor.POSTS.execute(param);
         } else {
             Log.i(getLocalClassName(), "No clickHandled");
