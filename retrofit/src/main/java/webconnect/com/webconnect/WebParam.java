@@ -27,7 +27,7 @@ public class WebParam implements Serializable {
     private String url, /**
      * The Base url.
      */
-    baseUrl, pathSegment = "", pathSegmentParam = "";
+    baseUrl, pathSegmentParam = "";
     /**
      * The Http type.
      */
@@ -134,10 +134,6 @@ public class WebParam implements Serializable {
         return taskId;
     }
 
-    public String getPathSegment() {
-        return pathSegment;
-    }
-
     public String getPathSegmentParam() {
         return pathSegmentParam;
     }
@@ -158,23 +154,11 @@ public class WebParam implements Serializable {
             webParam.url = url;
         }
 
-        public Builder(@NonNull Context context, @NonNull String url, @NonNull String pathSegment) {
-            webParam = new WebParam();
-            webParam.context = context;
-            webParam.url = url;
-            webParam.pathSegment = pathSegment;
-        }
-
-
         public Builder baseUrl(@NonNull String url) {
             webParam.baseUrl = url;
             return this;
         }
 
-        public Builder pathSegment(@NonNull String pathSegment) {
-            webParam.pathSegment = pathSegment;
-            return this;
-        }
 
         public Builder pathSegmentParam(@NonNull String pathSegmentParam) {
             webParam.pathSegmentParam = pathSegmentParam;
@@ -243,7 +227,6 @@ public class WebParam implements Serializable {
          * <p>
          *
          * @see #httpType(HttpType)
-         * @see #pathSegment(String)
          * @see #pathSegmentParam(String)
          */
         public void connect() {

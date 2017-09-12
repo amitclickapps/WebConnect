@@ -8,11 +8,15 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import java.io.File;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
 import retrofit2.Response;
 import webconnect.com.webconnect.WebConnect;
 import webconnect.com.webconnect.WebHandler;
@@ -26,7 +30,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @BindView(R.id.button)
     Button getBtn;
 
-    public static final String ENDPOINT_POST = "posts/{id}";
+    public static final String ENDPOINT_POST = "posts/";
     public static final String ENDPOINT_BASE = "https://jsonplaceholder.typicode.com/";
 
     @Override
@@ -42,9 +46,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         int id = view.getId();
         if (id == R.id.button) {
             Map<String, String> requestMap = new LinkedHashMap<>();
-            WebConnect.with(this, ENDPOINT_POST, "posts")
+            WebConnect.with(this, ENDPOINT_POST)
                     .httpType(WebParam.HttpType.GET)
-//                    .pathSegmentParam("1")
+                    .pathSegmentParam("1")
                     .callback(new WebHandler.OnWebCallback() {
                         @Override
                         public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
@@ -62,5 +66,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             Log.i(getLocalClassName(), "No clickHandled");
         }
+
+
     }
 }

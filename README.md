@@ -47,10 +47,11 @@ public interface Services {
 }
 ```
 #### New
+ENDPOINT_POST = "posts/"
+if need to append pathSegmentParam then pass pathSegmentParam("1")
 ```
         WebConnect.with(this, ENDPOINT_POST)
                             .httpType(WebParam.HttpType.GET) // Really Important
-                            .pathSegment("posts")
                             .pathSegmentParam("1") // if needed
                             .callback(new WebHandler.OnWebCallback() {
                                 @Override
@@ -68,9 +69,9 @@ public interface Services {
 ```
 OR
 ```
-        WebConnect.with(this, ENDPOINT_POST, "posts")
+        WebConnect.with(this, ENDPOINT_POST)
                             .httpType(WebParam.HttpType.GET) // Really Important
-                            .pathSegmentParam("1")
+                            .pathSegmentParam("1") // if needed
                             .callback(new WebHandler.OnWebCallback() {
                                 @Override
                                 public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
@@ -85,7 +86,21 @@ OR
                                 }
                             }).requestParam(requestMap).connect();
 ```
-
+#### Multipart
+```
+ Map<String, RequestBody> multipartMap = new HashMap<>();
+        multipartMap.put("key1", RequestBody.create(MediaType.parse("text/plain"), "1"));
+        multipartMap.put("key1", RequestBody.create(MediaType.parse("text/plain"), "name"));
+        // Adding File 
+        StringBuilder stringBuilder = new StringBuilder();
+        stringBuilder.append("attachments_attributes[][attachment]\";");
+        stringBuilder.append("filename=");
+        stringBuilder.append("\"").append("fileName.jpp");
+        multipartMap.put(stringBuilder.toString(), RequestBody.create(MediaType.parse("MIMETYPE"), new File("filepath")));
+        WebConnect.with(this,"register/")
+                .multipartParam(multipartMap)
+                .httpType(WebParam.HttpType.POST).connect();
+```
 -----
 
 
