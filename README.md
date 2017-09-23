@@ -1,13 +1,4 @@
 ### Global Configuration
-#### Old
-```
-        new Configuration.Builder()
-                .baseUrl("test")
-                .connectTimeOut(1000L)
-                .readTimeOut(2000L)
-                .config();
-```
-#### New
 ```
         new ApiConfiguration.Builder()
                         .baseUrl(MainActivity.ENDPOINT_BASE)
@@ -47,12 +38,11 @@ public interface Services {
 }
 ```
 #### New
-ENDPOINT_POST = "posts/"
-if need to append pathSegmentParam then pass pathSegmentParam("1")
+ENDPOINT_POST = "posts/1"
+
 ```
         WebConnect.with(this, ENDPOINT_POST)
                             .httpType(WebParam.HttpType.GET) // Really Important
-                            .pathSegmentParam("1") // if needed
                             .callback(new WebHandler.OnWebCallback() {
                                 @Override
                                 public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
@@ -67,25 +57,8 @@ if need to append pathSegmentParam then pass pathSegmentParam("1")
                                 }
                             }).requestParam(requestMap).connect();
 ```
-OR
-```
-        WebConnect.with(this, ENDPOINT_POST)
-                            .httpType(WebParam.HttpType.GET) // Really Important
-                            .pathSegmentParam("1") // if needed
-                            .callback(new WebHandler.OnWebCallback() {
-                                @Override
-                                public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
-                                    if (object != null) {
-                                        Toast.makeText(MainActivity.this, object.toString(), Toast.LENGTH_SHORT).show();
-                                    }
-                                }
 
-                                @Override
-                                public <T> void onError(@Nullable T object, String error, int taskId) {
-                                    Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
-                                }
-                            }).requestParam(requestMap).connect();
-```
+
 #### Multipart
 ```
  Map<String, RequestBody> multipartMap = new HashMap<>();
