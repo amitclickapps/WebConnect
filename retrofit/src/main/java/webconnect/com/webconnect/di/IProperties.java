@@ -2,6 +2,7 @@ package webconnect.com.webconnect.di;
 
 import android.support.annotation.NonNull;
 
+import java.io.File;
 import java.util.Map;
 
 import webconnect.com.webconnect.WebHandler;
@@ -13,33 +14,31 @@ import webconnect.com.webconnect.WebParam;
 
 public interface IProperties {
 
-    public IProperties baseUrl(@NonNull String url);
+    IProperties baseUrl(@NonNull String url);
 
-    public IProperties pathSegment(@NonNull String pathSegment);
+    IProperties httpType(@NonNull WebParam.HttpType httpType);
 
-    public IProperties pathSegmentParam(@NonNull String pathSegmentParam);
+    IProperties requestParam(@NonNull Map<String, ?> requestParam);
 
-    public IProperties httpType(@NonNull WebParam.HttpType httpType);
+    IProperties multipartParam(@NonNull Map<String, ?> multipartParam);
 
-    public IProperties requestParam(@NonNull Map<String, ?> requestParam);
+    IProperties headerParam(@NonNull Map<String, String> headerParam);
 
-    public IProperties multipartParam(@NonNull Map<String, ?> multipartParam);
+    IProperties callback(@NonNull WebHandler.OnWebCallback callback);
 
-    public IProperties headerParam(@NonNull Map<String, String> headerParam);
+    IProperties callback(@NonNull WebHandler.OnWebCallback callback,
+                         @NonNull Class<?> success, @NonNull Class<?> error);
 
-    public IProperties callback(@NonNull WebHandler.OnWebCallback callback);
+    IProperties successModel(@NonNull Class<?> success);
 
-    public IProperties callback(@NonNull WebHandler.OnWebCallback callback,
-                                @NonNull Class<?> success, @NonNull Class<?> error);
+    IProperties errorModel(@NonNull Class<?> error);
 
-    public IProperties successModel(@NonNull Class<?> success);
+    IProperties taskId(int taskId);
 
-    public IProperties errorModel(@NonNull Class<?> error);
-
-    public IProperties taskId(int taskId);
+    IProperties downloadFile(File file);
 
     @Deprecated
-    public WebParam build();
+    WebParam build();
 
     /**
      * To use this have to set these values
@@ -50,8 +49,6 @@ public interface IProperties {
      * <p>
      *
      * @see #httpType(WebParam.HttpType)
-     * @see #pathSegment(String)
-     * @see #pathSegmentParam(String)
      */
-    public void connect();
+    void connect();
 }

@@ -16,7 +16,7 @@ public class RetrofitApplication extends Application {
         new ApiConfiguration.Builder()
                 .baseUrl(MainActivity.ENDPOINT_BASE)
                 .timeOut(1000L, 2000L)
-                .debug(false)
+                .debug(true)
                 .config();
     }
 }

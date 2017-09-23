@@ -1,10 +1,13 @@
 package webconnect.com.webconnect;
 
+import android.util.Log;
+
 import java.util.Map;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.RequestBody;
+import okhttp3.ResponseBody;
 
 /**
  * Created by clickapps on 31/8/17.
@@ -17,10 +20,21 @@ public enum APIExecutor {
         void execute(WebParam param) {
             map = (Map<String, Object>) param.requestParam;
             WebConnect.connect(IAPIService.class, param)
-                    .get(param.pathSegment, param.pathSegmentParam, map)
+                    .get(param.url, map)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Callback<>(param));
+        }
+    },
+    GET_FILE {
+        @Override
+        void execute(WebParam param) {
+            map = (Map<String, Object>) param.requestParam;
+            WebConnect.connect(IAPIService.class, param)
+                    .getFile(param.url, map)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Callback<ResponseBody>(param));
         }
     },
     POST {
@@ -28,7 +42,7 @@ public enum APIExecutor {
         void execute(WebParam param) {
             map = (Map<String, Object>) param.requestParam;
             WebConnect.connect(IAPIService.class, param)
-                    .post(param.pathSegment, param.pathSegmentParam, map)
+                    .post(param.url, map)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Callback<>(param));
@@ -40,7 +54,7 @@ public enum APIExecutor {
         void execute(WebParam param) {
             map = (Map<String, Object>) param.requestParam;
             WebConnect.connect(IAPIService.class, param)
-                    .put(param.pathSegment, param.pathSegmentParam, map)
+                    .put(param.url, map)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Callback<>(param));
@@ -52,7 +66,7 @@ public enum APIExecutor {
         void execute(WebParam param) {
             map = (Map<String, Object>) param.requestParam;
             WebConnect.connect(IAPIService.class, param)
-                    .delete(param.pathSegment, param.pathSegmentParam, map)
+                    .delete(param.url, map)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Callback<>(param));
@@ -63,7 +77,7 @@ public enum APIExecutor {
         void execute(WebParam param) {
             Map<String, RequestBody> multipartMap = (Map<String, RequestBody>) param.multipartParam;
             WebConnect.connect(IAPIService.class, param)
-                    .multipart(param.pathSegment, param.pathSegmentParam, multipartMap)
+                    .multipart(param.url, multipartMap)
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .subscribe(new Callback<>(param));

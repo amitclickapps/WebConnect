@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import java.io.File;
 import java.util.Map;
 
 import webconnect.com.webconnect.di.IProperties;
@@ -29,28 +30,9 @@ public class Builder implements IProperties {
         webParam.url = url;
     }
 
-    public Builder(@NonNull Context context, @NonNull String url, @NonNull String pathSegment) {
-        webParam = new WebParam();
-        webParam.context = context;
-        webParam.url = url;
-        webParam.pathSegment = pathSegment;
-    }
-
     @Override
     public Builder baseUrl(@NonNull String url) {
         webParam.baseUrl = url;
-        return this;
-    }
-
-    @Override
-    public Builder pathSegment(@NonNull String pathSegment) {
-        webParam.pathSegment = pathSegment;
-        return this;
-    }
-
-    @Override
-    public Builder pathSegmentParam(@NonNull String pathSegmentParam) {
-        webParam.pathSegmentParam = pathSegmentParam;
         return this;
     }
 
@@ -112,6 +94,13 @@ public class Builder implements IProperties {
     }
 
     @Override
+    public IProperties downloadFile(File file) {
+        webParam.file = file;
+        webParam.isFile = true;
+        return this;
+    }
+
+    @Override
     @Deprecated
     public WebParam build() {
         return webParam;
@@ -119,16 +108,20 @@ public class Builder implements IProperties {
 
     @Override
     public void connect() {
-        if (webParam.httpType == WebParam.HttpType.GET) {
-            APIExecutor.GET.execute(webParam);
-        } else if (webParam.httpType == WebParam.HttpType.POST) {
-            APIExecutor.POST.execute(webParam);
-        } else if (webParam.httpType == WebParam.HttpType.PUT) {
-            APIExecutor.PUT.execute(webParam);
-        } else if (webParam.httpType == WebParam.HttpType.DELETE) {
-            APIExecutor.DELETE.execute(webParam);
-        } else {
-            APIExecutor.MULTIPART.execute(webParam);
+        if(!webParam.isFile) {
+            if (webParam.httpType == WebParam.HttpType.GET) {
+                APIExecutor.GET.execute(webParam);
+            } else if (webParam.httpType == WebParam.HttpType.POST) {
+                APIExecutor.POST.execute(webParam);
+            } else if (webParam.httpType == WebParam.HttpType.PUT) {
+                APIExecutor.PUT.execute(webParam);
+            } else if (webParam.httpType == WebParam.HttpType.DELETE) {
+                APIExecutor.DELETE.execute(webParam);
+            } else {
+                APIExecutor.MULTIPART.execute(webParam);
+            }
+        }else{
+            APIExecutor.GET_FILE.execute(webParam);
         }
     }
 }

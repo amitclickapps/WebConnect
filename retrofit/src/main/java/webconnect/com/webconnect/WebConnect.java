@@ -54,29 +54,6 @@ public class WebConnect {
         return new Builder(context, url);
     }
 
-    /**
-     * With builder.
-     *
-     * @param context     the context
-     * @param url         the url
-     * @param pathSegment the pathSegment
-     * @return the builder
-     */
-    public static Builder with(@NonNull Activity context, @NonNull String url, @NonNull String pathSegment) {
-        return new Builder(context, url, pathSegment);
-    }
-
-    /**
-     * With builder.
-     *
-     * @param context     the context
-     * @param url         the url
-     * @param pathSegment the pathSegment
-     * @return the builder
-     */
-    public static Builder with(@NonNull Context context, @NonNull String url, @NonNull String pathSegment) {
-        return new Builder(context, url, pathSegment);
-    }
 
     /*
      * Connect

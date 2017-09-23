@@ -83,7 +83,6 @@ public class RetrofitManager {
      * The type String converter factory.
      */
     private static final class StringConverterFactory extends Converter.Factory {
-
         /**
          * Create string converter factory.
          *

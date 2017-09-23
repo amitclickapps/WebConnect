@@ -9,5 +9,5 @@ public class WebConstant {
     static String sPath_Segment;
     static String sParameter;
 
-    static final String sEND_POINT = "{path_segment}/{parameter}";
+    static final String sEND_POINT = "{path_segment}";
 }

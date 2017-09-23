@@ -102,7 +102,29 @@ OR
                 .httpType(WebParam.HttpType.POST).connect();
 ```
 -----
+#### Download File/Image (Anything)
+```
+File file = new File(Environment.getExternalStorageDirectory(),"temp.jpg");
+            Map<String, String> requestMap = new LinkedHashMap<>();
+            WebConnect.with(this, "624996-pixelponew.jpg")
+                    .httpType(WebParam.HttpType.GET)
+                    .baseUrl("http://api.staging.moh.clicksandbox1.com:8080/upload/magazins/8/original/")
+                    .requestParam(requestMap)
+                    .downloadFile(file)
+                    .callback(new WebHandler.OnWebCallback() {
+                        @Override
+                        public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
+                            if (object != null) {
+                                Toast.makeText(MainActivity.this, object.toString(), Toast.LENGTH_SHORT).show();
+                            }
+                        }
 
+                        @Override
+                        public <T> void onError(@Nullable T object, String error, int taskId) {
+                            Toast.makeText(MainActivity.this, error, Toast.LENGTH_SHORT).show();
+                        }
+                    }).connect();
+```
 
 Download
 --------

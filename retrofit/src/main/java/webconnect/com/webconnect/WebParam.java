@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
+import java.io.File;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,7 +29,7 @@ public class WebParam implements Serializable {
     String url, /**
      * The Base url.
      */
-    baseUrl, pathSegment = "", pathSegmentParam = "";
+    baseUrl;
     /**
      * The Http type.
      */
@@ -61,6 +63,12 @@ public class WebParam implements Serializable {
      * The Task id.
      */
     int taskId;
+    /**
+     * Download File anyType
+     */
+    boolean isFile;
+    File file;
+    InputStream inputStream;
 
     /**
      * The enum Http type.
@@ -78,11 +86,63 @@ public class WebParam implements Serializable {
         PUT, /**
          * Delete http type.
          */
-        DELETE,
-        /**
-         *
-         */
-        MULTIPART
+        DELETE
     }
 
+
+    public Activity getActivityContext() {
+        return activityContext;
+    }
+
+    public Context getContext() {
+        return context;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public HttpType getHttpType() {
+        return httpType;
+    }
+
+    public Map<String, ?> getRequestParam() {
+        return requestParam;
+    }
+
+    public Map<String, ?> getMultipartParam() {
+        return multipartParam;
+    }
+
+    public Map<String, String> getHeaderParam() {
+        return headerParam;
+    }
+
+    public WebHandler.OnWebCallback getCallback() {
+        return callback;
+    }
+
+    public Class<?> getModel() {
+        return model;
+    }
+
+    public Class<?> getError() {
+        return error;
+    }
+
+    public int getTaskId() {
+        return taskId;
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public boolean isFile() {
+        return isFile;
+    }
 }

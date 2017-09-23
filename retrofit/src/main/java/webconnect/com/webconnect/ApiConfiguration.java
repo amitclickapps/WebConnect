@@ -16,6 +16,7 @@ public class ApiConfiguration implements Serializable {
     private static long sCONNECT_TIMEOUT_MILLIS = 10 * 1000, sREAD_TIMEOUT_MILLIS = 20 * 1000;
     private static Gson sGSON = new GsonBuilder()
             .setDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SSS'Z'")
+            .setLenient()
             .create();
     private static boolean sID_DEBUG = true;
 

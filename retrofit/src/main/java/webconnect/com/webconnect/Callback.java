@@ -7,6 +7,13 @@ package webconnect.com.webconnect;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -16,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 /**
@@ -50,14 +58,28 @@ public class Callback<T> implements Observer<Response<T>> {
             }
 
             if (response.isSuccessful()) {
-                res = response.body().toString();
-                if (webParam.model != null
-                        && !TextUtils.isEmpty(res)) {
-                    object = ApiConfiguration.getGson().fromJson(res, webParam.model);
-                } else if (!TextUtils.isEmpty(res)) {
-                    object = ApiConfiguration.getGson().fromJson(res, Object.class);
+                if (response.body() instanceof String) {
+                    res = response.body().toString();
+                }
+                if (!webParam.isFile) {
+                    if (webParam.model != null
+                            && !TextUtils.isEmpty(res)) {
+                        object = ApiConfiguration.getGson().fromJson(res, webParam.model);
+                    } else if (!TextUtils.isEmpty(res)) {
+                        object = ApiConfiguration.getGson().fromJson(res, Object.class);
+                    } else {
+                        object = res;
+                    }
                 } else {
-                    object = res;
+                    ResponseBody body = (ResponseBody) response.body();
+                    object = webParam.file;
+                    OutputStream out = null;
+                    try {
+                        out = new FileOutputStream(webParam.file);
+                        IOUtils.copy(body.byteStream(), out);
+                    } finally {
+                        IOUtils.closeQuietly(out);
+                    }
                 }
                 webParam.callback.onSuccess(object, webParam.taskId, response);
             } else {
