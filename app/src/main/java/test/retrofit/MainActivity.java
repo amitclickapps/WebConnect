@@ -34,7 +34,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @BindView(R.id.button3)
     Button deleteBtn;
 
-    public static final String ENDPOINT_GET = "624996-pixelponew.jpg";
+    public static final String ENDPOINT_GET = "users";
     public static final String ENDPOINT_POST = "users";
     public static final String ENDPOINT_PUT = "users/740";
     public static final String ENDPOINT_BASE = "https://reqres.in/api/";
@@ -60,9 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Map<String, String> requestMap = new LinkedHashMap<>();
             WebConnect.with(this, ENDPOINT_GET)
                     .httpType(WebParam.HttpType.GET)
-                    .baseUrl("http://api.staging.moh.clicksandbox1.com:8080/upload/magazins/8/original/")
                     .requestParam(requestMap)
-                    .downloadFile(file)
                     .callback(new WebHandler.OnWebCallback() {
                         @Override
                         public <T> void onSuccess(@Nullable T object, int taskId, Response response) {

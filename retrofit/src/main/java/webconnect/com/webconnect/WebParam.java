@@ -68,7 +68,6 @@ public class WebParam implements Serializable {
      */
     boolean isFile;
     File file;
-    InputStream inputStream;
 
     /**
      * The enum Http type.
