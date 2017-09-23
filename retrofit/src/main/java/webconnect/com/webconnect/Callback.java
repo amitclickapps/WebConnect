@@ -7,6 +7,13 @@ package webconnect.com.webconnect;
 import android.text.TextUtils;
 import android.util.Log;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -16,6 +23,7 @@ import java.util.concurrent.TimeoutException;
 import io.reactivex.Observer;
 import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
+import okhttp3.ResponseBody;
 import retrofit2.Response;
 
 /**
@@ -45,32 +53,46 @@ public class Callback<T> implements Observer<Response<T>> {
         String res = "";
         try {
             Object object;
-            if (webParam.getCallback() == null) {
+            if (webParam.callback == null) {
                 return;
             }
 
             if (response.isSuccessful()) {
-                res = response.body().toString();
-                if (webParam.getModel() != null
-                        && !TextUtils.isEmpty(res)) {
-                    object = Configuration.getGson().fromJson(res, webParam.getModel());
-                } else if (!TextUtils.isEmpty(res)) {
-                    object = Configuration.getGson().fromJson(res, Object.class);
-                } else {
-                    object = res;
+                if (response.body() instanceof String) {
+                    res = response.body().toString();
                 }
-                webParam.getCallback().onSuccess(object, webParam.getTaskId(), response);
+                if (!webParam.isFile) {
+                    if (webParam.model != null
+                            && !TextUtils.isEmpty(res)) {
+                        object = ApiConfiguration.getGson().fromJson(res, webParam.model);
+                    } else if (!TextUtils.isEmpty(res)) {
+                        object = ApiConfiguration.getGson().fromJson(res, Object.class);
+                    } else {
+                        object = res;
+                    }
+                } else {
+                    ResponseBody body = (ResponseBody) response.body();
+                    object = webParam.file;
+                    OutputStream out = null;
+                    try {
+                        out = new FileOutputStream(webParam.file);
+                        IOUtils.copy(body.byteStream(), out);
+                    } finally {
+                        IOUtils.closeQuietly(out);
+                    }
+                }
+                webParam.callback.onSuccess(object, webParam.taskId, response);
             } else {
                 res = response.errorBody().string();
-                if (webParam.getError() != null
+                if (webParam.error != null
                         && !TextUtils.isEmpty(res)) {
-                    object = Configuration.getGson().fromJson(res, webParam.getError());
+                    object = ApiConfiguration.getGson().fromJson(res, webParam.error);
                 } else if (!TextUtils.isEmpty(res)) {
-                    object = Configuration.getGson().fromJson(res, Object.class);
+                    object = ApiConfiguration.getGson().fromJson(res, Object.class);
                 } else {
                     object = res;
                 }
-                webParam.getCallback().onError(object, res, webParam.getTaskId());
+                webParam.callback.onError(object, res, webParam.taskId);
 
             }
         } catch (Exception e) {
@@ -78,35 +100,35 @@ public class Callback<T> implements Observer<Response<T>> {
             if (BuildConfig.DEBUG) {
                 Log.e(getClass().getSimpleName(), e.getMessage());
             }
-            webParam.getCallback().onError(e, res, webParam.getTaskId());
+            webParam.callback.onError(e, res, webParam.taskId);
         }
     }
 
     @Override
     public void onError(@NonNull Throwable t) {
         try {
-            if (webParam.getCallback() != null
-                    && webParam.getContext() != null) {
+            if (webParam.callback != null
+                    && webParam.context != null) {
                 String errors;
                 if (t.getClass().getName().contains(UnknownHostException.class.getName())) {
-                    errors = webParam.getContext().getString(R.string.error_internet_connection);
+                    errors = webParam.context.getString(R.string.error_internet_connection);
                 } else if (t.getClass().getName().contains(TimeoutException.class.getName())
                         || t.getClass().getName().contains(SocketTimeoutException.class.getName())
                         || t.getClass().getName().contains(ConnectException.class.getName())) {
-                    errors = webParam.getContext().getString(R.string.error_server_connection);
+                    errors = webParam.context.getString(R.string.error_server_connection);
                 } else if (t.getClass().getName().contains(CertificateException.class.getName())) {
-                    errors = webParam.getContext().getString(R.string.error_certificate_exception);
+                    errors = webParam.context.getString(R.string.error_certificate_exception);
                 } else {
                     errors = t.toString();
                 }
-                webParam.getCallback().onError(errors, errors, webParam.getTaskId());
+                webParam.callback.onError(errors, errors, webParam.taskId);
             }
         } catch (Exception e) {
             e.printStackTrace();
             if (BuildConfig.DEBUG) {
                 Log.e(getClass().getSimpleName(), e.getMessage());
             }
-            webParam.getCallback().onError(e.getMessage(), e.getMessage(), webParam.getTaskId());
+            webParam.callback.onError(e.getMessage(), e.getMessage(), webParam.taskId);
         }
     }
 
