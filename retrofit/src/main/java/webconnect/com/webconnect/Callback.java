@@ -45,32 +45,32 @@ public class Callback<T> implements Observer<Response<T>> {
         String res = "";
         try {
             Object object;
-            if (webParam.getCallback() == null) {
+            if (webParam.callback == null) {
                 return;
             }
 
             if (response.isSuccessful()) {
                 res = response.body().toString();
-                if (webParam.getModel() != null
+                if (webParam.model != null
                         && !TextUtils.isEmpty(res)) {
-                    object = ApiConfiguration.getGson().fromJson(res, webParam.getModel());
+                    object = ApiConfiguration.getGson().fromJson(res, webParam.model);
                 } else if (!TextUtils.isEmpty(res)) {
                     object = ApiConfiguration.getGson().fromJson(res, Object.class);
                 } else {
                     object = res;
                 }
-                webParam.getCallback().onSuccess(object, webParam.getTaskId(), response);
+                webParam.callback.onSuccess(object, webParam.taskId, response);
             } else {
                 res = response.errorBody().string();
-                if (webParam.getError() != null
+                if (webParam.error != null
                         && !TextUtils.isEmpty(res)) {
-                    object = ApiConfiguration.getGson().fromJson(res, webParam.getError());
+                    object = ApiConfiguration.getGson().fromJson(res, webParam.error);
                 } else if (!TextUtils.isEmpty(res)) {
                     object = ApiConfiguration.getGson().fromJson(res, Object.class);
                 } else {
                     object = res;
                 }
-                webParam.getCallback().onError(object, res, webParam.getTaskId());
+                webParam.callback.onError(object, res, webParam.taskId);
 
             }
         } catch (Exception e) {
@@ -78,35 +78,35 @@ public class Callback<T> implements Observer<Response<T>> {
             if (BuildConfig.DEBUG) {
                 Log.e(getClass().getSimpleName(), e.getMessage());
             }
-            webParam.getCallback().onError(e, res, webParam.getTaskId());
+            webParam.callback.onError(e, res, webParam.taskId);
         }
     }
 
     @Override
     public void onError(@NonNull Throwable t) {
         try {
-            if (webParam.getCallback() != null
-                    && webParam.getContext() != null) {
+            if (webParam.callback != null
+                    && webParam.context != null) {
                 String errors;
                 if (t.getClass().getName().contains(UnknownHostException.class.getName())) {
-                    errors = webParam.getContext().getString(R.string.error_internet_connection);
+                    errors = webParam.context.getString(R.string.error_internet_connection);
                 } else if (t.getClass().getName().contains(TimeoutException.class.getName())
                         || t.getClass().getName().contains(SocketTimeoutException.class.getName())
                         || t.getClass().getName().contains(ConnectException.class.getName())) {
-                    errors = webParam.getContext().getString(R.string.error_server_connection);
+                    errors = webParam.context.getString(R.string.error_server_connection);
                 } else if (t.getClass().getName().contains(CertificateException.class.getName())) {
-                    errors = webParam.getContext().getString(R.string.error_certificate_exception);
+                    errors = webParam.context.getString(R.string.error_certificate_exception);
                 } else {
                     errors = t.toString();
                 }
-                webParam.getCallback().onError(errors, errors, webParam.getTaskId());
+                webParam.callback.onError(errors, errors, webParam.taskId);
             }
         } catch (Exception e) {
             e.printStackTrace();
             if (BuildConfig.DEBUG) {
                 Log.e(getClass().getSimpleName(), e.getMessage());
             }
-            webParam.getCallback().onError(e.getMessage(), e.getMessage(), webParam.getTaskId());
+            webParam.callback.onError(e.getMessage(), e.getMessage(), webParam.taskId);
         }
     }
 

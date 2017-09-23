@@ -56,8 +56,8 @@ public class RetrofitManager {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
-                if (webParam.getHeaderParam() != null && webParam.getHeaderParam().size() > 0) {
-                    for (Map.Entry<String, String> entry : webParam.getHeaderParam().entrySet()) {
+                if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
+                    for (Map.Entry<String, String> entry : webParam.headerParam.entrySet()) {
                         request = request.newBuilder().addHeader(entry.getKey(), entry.getValue()).build();
                     }
                 }
@@ -66,8 +66,8 @@ public class RetrofitManager {
         });
         mOkHttpClientBuilder.addInterceptor(mInterceptor);
         String baseUrl = ApiConfiguration.getBaseUrl();
-        if (!TextUtils.isEmpty(webParam.getBaseUrl())) {
-            baseUrl = webParam.getBaseUrl();
+        if (!TextUtils.isEmpty(webParam.baseUrl)) {
+            baseUrl = webParam.baseUrl;
         }
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(baseUrl)

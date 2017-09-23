@@ -35,11 +35,11 @@ public class WebConnect {
      * With builder.
      *
      * @param context the context
-     * @param pathSegment     the pathSegment
+     * @param url     the url
      * @return the builder
      */
-    public static WebParam.Builder with(@NonNull Activity context, @NonNull String pathSegment) {
-        return new WebParam.Builder(context, pathSegment);
+    public static Builder with(@NonNull Activity context, @NonNull String url) {
+        return new Builder(context, url);
 
     }
 
@@ -47,11 +47,35 @@ public class WebConnect {
      * With builder.
      *
      * @param context the context
-     * @param pathSegment     the pathSegment
+     * @param url     the url
      * @return the builder
      */
-    public static WebParam.Builder with(@NonNull Context context, @NonNull String pathSegment) {
-        return new WebParam.Builder(context, pathSegment);
+    public static Builder with(@NonNull Context context, @NonNull String url) {
+        return new Builder(context, url);
+    }
+
+    /**
+     * With builder.
+     *
+     * @param context     the context
+     * @param url         the url
+     * @param pathSegment the pathSegment
+     * @return the builder
+     */
+    public static Builder with(@NonNull Activity context, @NonNull String url, @NonNull String pathSegment) {
+        return new Builder(context, url, pathSegment);
+    }
+
+    /**
+     * With builder.
+     *
+     * @param context     the context
+     * @param url         the url
+     * @param pathSegment the pathSegment
+     * @return the builder
+     */
+    public static Builder with(@NonNull Context context, @NonNull String url, @NonNull String pathSegment) {
+        return new Builder(context, url, pathSegment);
     }
 
     /*
