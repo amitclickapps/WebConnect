@@ -82,7 +82,12 @@ public class WebParam implements Serializable {
         POST, /**
          * Put http type.
          */
-        PUT, /**
+        PUT,
+        /**
+         * Patch http type.
+         */
+        PATCH,
+        /**
          * Delete http type.
          */
         DELETE
