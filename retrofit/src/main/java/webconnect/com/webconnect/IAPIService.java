@@ -4,7 +4,6 @@ import java.util.Map;
 
 import io.reactivex.Observable;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 import retrofit2.Response;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
@@ -15,17 +14,12 @@ import retrofit2.http.POST;
 import retrofit2.http.PUT;
 import retrofit2.http.Path;
 import retrofit2.http.QueryMap;
-import retrofit2.http.Streaming;
-import webconnect.com.webconnect.WebConstant;
 
 /**
  * Created by amit on 10/9/17.
  */
 
 public interface IAPIService {
-    @Streaming
-    @GET(WebConstant.sEND_POINT)
-    Observable<Response<ResponseBody>> getFile(@Path("path_segment") String pathSegment, @QueryMap Map<String, Object> map);
 
     @GET(WebConstant.sEND_POINT)
     Observable<Response<Object>> get(@Path("path_segment") String pathSegment, @QueryMap Map<String, Object> map);

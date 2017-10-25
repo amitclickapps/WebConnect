@@ -1,18 +1,29 @@
 package webconnect.com.webconnect;
 
+import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
+import android.util.Log;
 
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 
 import org.apache.commons.io.IOUtils;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
+import java.net.ConnectException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.security.cert.CertificateException;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import okhttp3.Call;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -30,6 +41,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class RetrofitManager {
     private OkHttpClient.Builder mOkHttpClientBuilder = new OkHttpClient.Builder();
     private HttpLoggingInterceptor mInterceptor = new HttpLoggingInterceptor();
+    private static OkHttpClient.Builder mOkHttpClientBuilderTemp = new OkHttpClient.Builder();
 
 
     /**
@@ -65,6 +77,7 @@ public class RetrofitManager {
             }
         });
         mOkHttpClientBuilder.addInterceptor(mInterceptor);
+        mOkHttpClientBuilderTemp = mOkHttpClientBuilder;
         String baseUrl = ApiConfiguration.getBaseUrl();
         if (!TextUtils.isEmpty(webParam.baseUrl)) {
             baseUrl = webParam.baseUrl;
@@ -107,5 +120,76 @@ public class RetrofitManager {
                 return IOUtils.toString(new InputStreamReader(value.byteStream()));
             }
         }
+    }
+
+
+    static void download(final WebParam param){
+        Request request = new Request.Builder()
+                .url(param.url)
+                .build();
+        mOkHttpClientBuilderTemp.build().newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(Call call, IOException t) {
+                try {
+                    if (param.callback != null
+                            && param.context != null) {
+                        final String errors;
+                        if (t.getClass().getName().contains(UnknownHostException.class.getName())) {
+                            errors = param.context.getString(R.string.error_internet_connection);
+                        } else if (t.getClass().getName().contains(TimeoutException.class.getName())
+                                || t.getClass().getName().contains(SocketTimeoutException.class.getName())
+                                || t.getClass().getName().contains(ConnectException.class.getName())) {
+                            errors = param.context.getString(R.string.error_server_connection);
+                        } else if (t.getClass().getName().contains(CertificateException.class.getName())) {
+                            errors = param.context.getString(R.string.error_certificate_exception);
+                        } else {
+                            errors = t.toString();
+                        }
+                        Handler h = new Handler(Looper.getMainLooper());
+                        h.post(new Runnable() {
+                            public void run() {
+                                param.callback.onError(errors, errors, param.taskId);
+                            }
+                        });
+                    }
+                } catch (final Exception e) {
+                    e.printStackTrace();
+                    if (BuildConfig.DEBUG) {
+                        Log.e(getClass().getSimpleName(), e.getMessage());
+                    }
+                    Handler h = new Handler(Looper.getMainLooper());
+                    h.post(new Runnable() {
+                        public void run() {
+                            param.callback.onError(e.getMessage(), e.getMessage(), param.taskId);
+                        }
+                    });
+
+                }
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Object object = null;
+                if (response.isSuccessful()) {
+                    ResponseBody body = response.body();
+                    OutputStream out = null;
+                    object = param.file;
+                    try {
+                        out = new FileOutputStream(param.file);
+                        IOUtils.copy(body.byteStream(), out);
+                    } finally {
+                        IOUtils.closeQuietly(out);
+                    }
+                    Handler h = new Handler(Looper.getMainLooper());
+                    final Object finalObject = object;
+                    h.post(new Runnable() {
+                        public void run() {
+                            param.callback.onSuccess(finalObject, param.taskId, null);
+                        }
+                    });
+
+                }
+            }
+        });
     }
 }

@@ -58,8 +58,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // http://api.staging.moh.clicksandbox1.com:8080/upload/magazins/8/original/624996-pixelponew.jpg?1505885452
             File file = new File(Environment.getExternalStorageDirectory(),"temp.jpg");
             Map<String, String> requestMap = new LinkedHashMap<>();
-            WebConnect.with(this, ENDPOINT_GET)
-                    .httpType(WebParam.HttpType.GET)
+            WebConnect.with(this, "http://wwwns.akamai.com/media_resources/globe_emea.png")
                     .downloadFile(file)
                     .requestParam(requestMap)
                     .callback(new WebHandler.OnWebCallback() {
