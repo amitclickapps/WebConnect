@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Map<String, String> requestMap = new LinkedHashMap<>();
             WebConnect.with(this, ENDPOINT_GET)
                     .httpType(WebParam.HttpType.GET)
+                    .downloadFile(file)
                     .requestParam(requestMap)
                     .callback(new WebHandler.OnWebCallback() {
                         @Override

@@ -94,7 +94,14 @@ public class Builder implements IProperties {
     }
 
     @Override
-    public IProperties downloadFile(File file) {
+    public Builder timeOut(long connectTimeOut, long readTimeOut) {
+        webParam.connectTimeOut = connectTimeOut;
+        webParam.readTimeOut = readTimeOut;
+        return this;
+    }
+
+    @Override
+    public Builder downloadFile(File file) {
         webParam.file = file;
         webParam.isFile = true;
         return this;
