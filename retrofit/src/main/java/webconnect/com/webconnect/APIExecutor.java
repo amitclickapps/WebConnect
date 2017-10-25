@@ -61,6 +61,18 @@ public enum APIExecutor {
         }
     },
 
+    PATCH {
+        @Override
+        void execute(WebParam param) {
+            map = (Map<String, Object>) param.requestParam;
+            WebConnect.connect(IAPIService.class, param)
+                    .patch(param.url, map)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new Callback<>(param));
+        }
+    },
+
     DELETE {
         @Override
         void execute(WebParam param) {

@@ -94,7 +94,14 @@ public class Builder implements IProperties {
     }
 
     @Override
-    public IProperties downloadFile(File file) {
+    public Builder timeOut(long connectTimeOut, long readTimeOut) {
+        webParam.connectTimeOut = connectTimeOut;
+        webParam.readTimeOut = readTimeOut;
+        return this;
+    }
+
+    @Override
+    public Builder downloadFile(File file) {
         webParam.file = file;
         webParam.isFile = true;
         return this;
@@ -108,19 +115,21 @@ public class Builder implements IProperties {
 
     @Override
     public void connect() {
-        if(!webParam.isFile) {
+        if (!webParam.isFile) {
             if (webParam.httpType == WebParam.HttpType.GET) {
                 APIExecutor.GET.execute(webParam);
             } else if (webParam.httpType == WebParam.HttpType.POST) {
                 APIExecutor.POST.execute(webParam);
             } else if (webParam.httpType == WebParam.HttpType.PUT) {
                 APIExecutor.PUT.execute(webParam);
+            } else if (webParam.httpType == WebParam.HttpType.PATCH) {
+                APIExecutor.PATCH.execute(webParam);
             } else if (webParam.httpType == WebParam.HttpType.DELETE) {
                 APIExecutor.DELETE.execute(webParam);
             } else {
                 APIExecutor.MULTIPART.execute(webParam);
             }
-        }else{
+        } else {
             APIExecutor.GET_FILE.execute(webParam);
         }
     }

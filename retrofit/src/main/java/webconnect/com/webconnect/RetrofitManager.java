@@ -50,8 +50,8 @@ public class RetrofitManager {
     protected <T> T createService(Class<T> interfaceFile, final WebParam webParam) {
         mInterceptor.setLevel(ApiConfiguration.isDebug() ?
                 HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
-        mOkHttpClientBuilder.connectTimeout(ApiConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
-        mOkHttpClientBuilder.readTimeout(ApiConfiguration.getReadTimeOut(), TimeUnit.MILLISECONDS);
+        mOkHttpClientBuilder.connectTimeout(webParam.connectTimeOut == 0 ? ApiConfiguration.getConnectTimeOut() : webParam.connectTimeOut , TimeUnit.MILLISECONDS);
+        mOkHttpClientBuilder.readTimeout(webParam.readTimeOut == 0 ? ApiConfiguration.getReadTimeOut() : webParam.connectTimeOut, TimeUnit.MILLISECONDS);
         mOkHttpClientBuilder.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {

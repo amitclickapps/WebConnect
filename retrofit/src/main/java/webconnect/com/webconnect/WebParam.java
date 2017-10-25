@@ -2,10 +2,8 @@ package webconnect.com.webconnect;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
 
 import java.io.File;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -63,6 +61,8 @@ public class WebParam implements Serializable {
      * The Task id.
      */
     int taskId;
+
+    long connectTimeOut = 0, readTimeOut = 0;
     /**
      * Download File anyType
      */
@@ -82,7 +82,12 @@ public class WebParam implements Serializable {
         POST, /**
          * Put http type.
          */
-        PUT, /**
+        PUT,
+        /**
+         * Patch http type.
+         */
+        PATCH,
+        /**
          * Delete http type.
          */
         DELETE
