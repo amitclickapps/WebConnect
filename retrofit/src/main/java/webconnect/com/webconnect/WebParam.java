@@ -50,6 +50,10 @@ public class WebParam implements Serializable {
      */
     WebHandler.OnWebCallback callback;
     /**
+     *  Progress during download
+     */
+    WebHandler.ProgressListener progressListener;
+    /**
      * The Model.
      */
     Class<?> model;
@@ -148,5 +152,9 @@ public class WebParam implements Serializable {
 
     public boolean isFile() {
         return isFile;
+    }
+
+    public WebHandler.ProgressListener getProgressListener() {
+        return progressListener;
     }
 }

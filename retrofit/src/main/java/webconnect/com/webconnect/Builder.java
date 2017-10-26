@@ -108,6 +108,12 @@ public class Builder implements IProperties {
     }
 
     @Override
+    public Builder progressListener(@NonNull WebHandler.ProgressListener callback) {
+        webParam.progressListener = callback;
+        return this;
+    }
+
+    @Override
     @Deprecated
     public WebParam build() {
         return webParam;

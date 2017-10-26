@@ -25,11 +25,17 @@ import java.util.concurrent.TimeoutException;
 
 import okhttp3.Call;
 import okhttp3.Interceptor;
+import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
+import okio.Buffer;
+import okio.BufferedSource;
+import okio.ForwardingSource;
+import okio.Okio;
+import okio.Source;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
@@ -62,7 +68,7 @@ public class RetrofitManager {
     protected <T> T createService(Class<T> interfaceFile, final WebParam webParam) {
         mInterceptor.setLevel(ApiConfiguration.isDebug() ?
                 HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
-        mOkHttpClientBuilder.connectTimeout(webParam.connectTimeOut == 0 ? ApiConfiguration.getConnectTimeOut() : webParam.connectTimeOut , TimeUnit.MILLISECONDS);
+        mOkHttpClientBuilder.connectTimeout(webParam.connectTimeOut == 0 ? ApiConfiguration.getConnectTimeOut() : webParam.connectTimeOut, TimeUnit.MILLISECONDS);
         mOkHttpClientBuilder.readTimeout(webParam.readTimeOut == 0 ? ApiConfiguration.getReadTimeOut() : webParam.connectTimeOut, TimeUnit.MILLISECONDS);
         mOkHttpClientBuilder.addInterceptor(new Interceptor() {
             @Override
@@ -73,7 +79,10 @@ public class RetrofitManager {
                         request = request.newBuilder().addHeader(entry.getKey(), entry.getValue()).build();
                     }
                 }
-                return chain.proceed(request);
+                Response originalResponse = chain.proceed(request);
+                return originalResponse.newBuilder()
+                        .body(new ProgressResponseBody(originalResponse.body(), webParam))
+                        .build();
             }
         });
         mOkHttpClientBuilder.addInterceptor(mInterceptor);
@@ -122,8 +131,54 @@ public class RetrofitManager {
         }
     }
 
+    private static class ProgressResponseBody extends ResponseBody {
 
-    static void download(final WebParam param){
+        private final ResponseBody responseBody;
+        private final WebParam webParam;
+        private BufferedSource bufferedSource;
+
+        ProgressResponseBody(ResponseBody responseBody, WebParam webParam) {
+            this.responseBody = responseBody;
+            this.webParam = webParam;
+        }
+
+        @Override
+        public MediaType contentType() {
+            return responseBody.contentType();
+        }
+
+        @Override
+        public long contentLength() {
+            return responseBody.contentLength();
+        }
+
+        @Override
+        public BufferedSource source() {
+            if (bufferedSource == null) {
+                bufferedSource = Okio.buffer(source(responseBody.source()));
+            }
+            return bufferedSource;
+        }
+
+        private Source source(Source source) {
+            return new ForwardingSource(source) {
+                long totalBytesRead = 0L;
+
+                @Override
+                public long read(Buffer sink, long byteCount) throws IOException {
+                    long bytesRead = super.read(sink, byteCount);
+                    // read() returns the number of bytes read, or -1 if this source is exhausted.
+                    totalBytesRead += bytesRead != -1 ? bytesRead : 0;
+                    if (webParam.progressListener != null)
+                        webParam.progressListener.update(totalBytesRead, responseBody.contentLength(), bytesRead == -1);
+                    return bytesRead;
+                }
+            };
+        }
+    }
+
+
+    static void download(final WebParam param) {
         Request request = new Request.Builder()
                 .url(param.url)
                 .build();
