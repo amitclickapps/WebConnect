@@ -1,3 +1,5 @@
+![](https://jitpack.io/v/amitclickapps/retrofit-util.svg?style=flat-square)
+
 ### Global Configuration
 ```
         new ApiConfiguration.Builder()
@@ -79,9 +81,15 @@ ENDPOINT_POST = "posts/1"
 ```
 File file = new File(Environment.getExternalStorageDirectory(),"temp.jpg");
             Map<String, String> requestMap = new LinkedHashMap<>();
-            WebConnect.with(this, "624996-pixelponew.jpg")
-                    .httpType(WebParam.HttpType.GET)
-                    .baseUrl("http://api.staging.moh.clicksandbox1.com:8080/upload/magazins/8/original/")
+             WebConnect.with(this, "http://wwwns.akamai.com/media_resources/globe_emea.png")
+                     .downloadFile(file)
+                     .progressListener(new WebHandler.ProgressListener() {
+                     @Override
+                           public void update(long bytesRead, long contentLength, boolean done) {
+                                  String value = String.format(Locale.ENGLISH, "%d%% done\n", (100 * bytesRead) / contentLength);
+                                  Log.i(getLocalClassName(), value);
+                               }
+                     })
                     .requestParam(requestMap)
                     .downloadFile(file)
                     .callback(new WebHandler.OnWebCallback() {

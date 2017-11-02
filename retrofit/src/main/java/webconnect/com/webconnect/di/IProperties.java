@@ -35,7 +35,11 @@ public interface IProperties {
 
     IProperties taskId(int taskId);
 
+    IProperties timeOut(long connectTimeOut, long readTimeOut);
+
     IProperties downloadFile(File file);
+
+    IProperties progressListener(@NonNull WebHandler.ProgressListener callback);
 
     @Deprecated
     WebParam build();
