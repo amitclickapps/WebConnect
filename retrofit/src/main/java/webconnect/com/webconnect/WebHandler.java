@@ -34,6 +34,10 @@ public class WebHandler {
         <T> void onError(@Nullable T object, String error, int taskId);
     }
 
+    public interface ProgressListener {
+        void update(long bytesRead, long contentLength, boolean done);
+    }
+
     /**
      * The type Web callback.
      */

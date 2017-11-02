@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -56,11 +57,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (id == R.id.button) {
             // https://s3.amazonaws.com/uifaces/faces/twitter/calebogden/128.jpg
             // http://api.staging.moh.clicksandbox1.com:8080/upload/magazins/8/original/624996-pixelponew.jpg?1505885452
-            File file = new File(Environment.getExternalStorageDirectory(),"temp.jpg");
+            File file = new File(Environment.getExternalStorageDirectory(), "temp.jpg");
             Map<String, String> requestMap = new LinkedHashMap<>();
-            WebConnect.with(this, ENDPOINT_GET)
-                    .httpType(WebParam.HttpType.GET)
+            WebConnect.with(this, "http://wwwns.akamai.com/media_resources/globe_emea.png")
                     .downloadFile(file)
+                    .progressListener(new WebHandler.ProgressListener() {
+                        @Override
+                        public void update(long bytesRead, long contentLength, boolean done) {
+                            String value = String.format(Locale.ENGLISH, "%d%% done\n", (100 * bytesRead) / contentLength);
+                            Log.i(getLocalClassName(), value);
+                        }
+                    })
                     .requestParam(requestMap)
                     .callback(new WebHandler.OnWebCallback() {
                         @Override
@@ -124,7 +131,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             requestMap.put("job", "manager");
             WebConnect.with(this, ENDPOINT_PUT)
                     .httpType(WebParam.HttpType.DELETE)
-//                    .requestParam(requestMap)
+                    .requestParam(requestMap)
                     .callback(new WebHandler.OnWebCallback() {
                         @Override
                         public <T> void onSuccess(@Nullable T object, int taskId, Response response) {

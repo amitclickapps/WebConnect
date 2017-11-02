@@ -39,6 +39,8 @@ public interface IProperties {
 
     IProperties downloadFile(File file);
 
+    IProperties progressListener(@NonNull WebHandler.ProgressListener callback);
+
     @Deprecated
     WebParam build();
 

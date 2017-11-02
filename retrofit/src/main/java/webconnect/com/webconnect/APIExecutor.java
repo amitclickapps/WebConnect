@@ -1,13 +1,10 @@
 package webconnect.com.webconnect;
 
-import android.util.Log;
-
 import java.util.Map;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.RequestBody;
-import okhttp3.ResponseBody;
 
 /**
  * Created by clickapps on 31/8/17.
@@ -28,13 +25,10 @@ public enum APIExecutor {
     },
     GET_FILE {
         @Override
-        void execute(WebParam param) {
-            map = (Map<String, Object>) param.requestParam;
-            WebConnect.connect(IAPIService.class, param)
-                    .getFile(param.url, map)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new Callback<ResponseBody>(param));
+        void execute(final WebParam param) {
+            WebConnect.connect(IAPIService.class, param);
+            RetrofitManager.download(param);
+
         }
     },
     POST {
