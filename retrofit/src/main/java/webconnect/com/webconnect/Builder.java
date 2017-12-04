@@ -2,7 +2,6 @@ package webconnect.com.webconnect;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
@@ -140,7 +139,7 @@ public class Builder implements IProperties {
                 APIExecutor.PATCH.execute(webParam);
             } else if (webParam.httpType == WebParam.HttpType.DELETE) {
                 APIExecutor.DELETE.execute(webParam);
-            } else {
+            } else if (webParam.httpType == WebParam.HttpType.MULTIPART) {
                 APIExecutor.MULTIPART.execute(webParam);
             }
         } else {
