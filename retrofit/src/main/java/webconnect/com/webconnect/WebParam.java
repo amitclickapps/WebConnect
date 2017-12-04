@@ -1,6 +1,8 @@
 package webconnect.com.webconnect;
 
 import android.app.Activity;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
 
 import java.io.File;
@@ -53,6 +55,10 @@ public class WebParam implements Serializable {
      *  Progress during download
      */
     WebHandler.ProgressListener progressListener;
+    /**
+     * Progress Dialog
+     */
+    Dialog dialog;
     /**
      * The Model.
      */
@@ -157,4 +163,9 @@ public class WebParam implements Serializable {
     public WebHandler.ProgressListener getProgressListener() {
         return progressListener;
     }
+
+    public Dialog getDialog() {
+        return dialog;
+    }
+
 }

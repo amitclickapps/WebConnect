@@ -7,12 +7,9 @@ package webconnect.com.webconnect;
 import android.text.TextUtils;
 import android.util.Log;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -52,6 +49,10 @@ public class Callback<T> implements Observer<Response<T>> {
     public void onNext(@NonNull retrofit2.Response<T> response) {
         String res = "";
         try {
+            if (webParam.dialog != null &&
+                    webParam.dialog.isShowing()) {
+                webParam.dialog.dismiss();
+            }
             Object object;
             if (webParam.callback == null) {
                 return;
@@ -107,6 +108,10 @@ public class Callback<T> implements Observer<Response<T>> {
     @Override
     public void onError(@NonNull Throwable t) {
         try {
+            if (webParam.dialog != null &&
+                    webParam.dialog.isShowing()) {
+                webParam.dialog.dismiss();
+            }
             if (webParam.callback != null
                     && webParam.context != null) {
                 String errors;

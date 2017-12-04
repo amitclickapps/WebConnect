@@ -98,6 +98,10 @@ public class RetrofitManager {
                 .addConverterFactory(GsonConverterFactory.create(ApiConfiguration.getGson()));
         builder.client(mOkHttpClientBuilder.build());
         Retrofit retrofit = builder.build();
+        if (webParam.dialog != null &&
+                !webParam.dialog.isShowing()) {
+            webParam.dialog.show();
+        }
         return retrofit.create(interfaceFile);
     }
 
@@ -186,6 +190,10 @@ public class RetrofitManager {
             @Override
             public void onFailure(Call call, IOException t) {
                 try {
+                    if (param.dialog != null &&
+                            param.dialog.isShowing()) {
+                        param.dialog.dismiss();
+                    }
                     if (param.callback != null
                             && param.context != null) {
                         final String errors;
@@ -225,6 +233,10 @@ public class RetrofitManager {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 Object object = null;
+                if (param.dialog != null &&
+                        param.dialog.isShowing()) {
+                    param.dialog.dismiss();
+                }
                 if (response.isSuccessful()) {
                     ResponseBody body = response.body();
                     OutputStream out = null;

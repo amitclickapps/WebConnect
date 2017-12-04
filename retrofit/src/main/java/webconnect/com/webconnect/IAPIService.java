@@ -22,21 +22,25 @@ import retrofit2.http.QueryMap;
 public interface IAPIService {
 
     @GET(WebConstant.sEND_POINT)
-    Observable<Response<Object>> get(@Path("path_segment") String pathSegment, @QueryMap Map<String, Object> map);
+    Observable<Response<Object>> get(@Path(value = "path_segment", encoded = true) String pathSegment, @QueryMap Map<String, Object> map);
 
     @POST(WebConstant.sEND_POINT)
-    Observable<Response<Object>> post(@Path("path_segment") String pathSegment, @Body Map<String, Object> map);
+    Observable<Response<Object>> post(@Path(value = "path_segment", encoded = true) String pathSegment, @Body Map<String, Object> map);
 
     @HTTP(method = "DELETE", path = WebConstant.sEND_POINT, hasBody = true)
-    Observable<Response<Object>> delete(@Path("path_segment") String pathSegment, @Body Map<String, Object> map);
+    Observable<Response<Object>> delete(@Path(value = "path_segment", encoded = true) String pathSegment, @Body Map<String, Object> map);
 
     @PUT(WebConstant.sEND_POINT)
-    Observable<Response<Object>> put(@Path("path_segment") String pathSegment, @Body Map<String, Object> map);
+    Observable<Response<Object>> put(@Path(value = "path_segment", encoded = true) String pathSegment, @Body Map<String, Object> map);
+
+    @PATCH(WebConstant.sEND_POINT)
+    Observable<Response<Object>> patch(@Path(value = "path_segment", encoded = true) String pathSegment, @Body Map<String, Object> map);
 
     @PATCH(WebConstant.sEND_POINT)
     Observable<Response<Object>> patch(@Path("path_segment") String pathSegment, @Body Map<String, Object> map);
 
     @Multipart
     @POST(WebConstant.sEND_POINT)
-    Observable<Response<Object>> multipart(@Path("path_segment") String pathSegment, @Body Map<String, RequestBody> map);
+    Observable<Response<Object>> multipart(@Path(value = "path_segment", encoded = true) String pathSegment, @Body Map<String, RequestBody> map);
+
 }

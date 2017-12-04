@@ -1,5 +1,7 @@
 package webconnect.com.webconnect.di;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.support.annotation.NonNull;
 
 import java.io.File;
@@ -40,6 +42,8 @@ public interface IProperties {
     IProperties downloadFile(File file);
 
     IProperties progressListener(@NonNull WebHandler.ProgressListener callback);
+
+    IProperties progressDialog(Dialog dialog);
 
     @Deprecated
     WebParam build();
