@@ -36,9 +36,6 @@ public interface IAPIService {
     @PATCH(WebConstant.sEND_POINT)
     Observable<Response<Object>> patch(@Path(value = "path_segment", encoded = true) String pathSegment, @Body Map<String, Object> map);
 
-    @PATCH(WebConstant.sEND_POINT)
-    Observable<Response<Object>> patch(@Path("path_segment") String pathSegment, @Body Map<String, Object> map);
-
     @Multipart
     @POST(WebConstant.sEND_POINT)
     Observable<Response<Object>> multipart(@Path(value = "path_segment", encoded = true) String pathSegment, @Body Map<String, RequestBody> map);
