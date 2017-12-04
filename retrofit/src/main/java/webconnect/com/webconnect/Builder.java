@@ -118,7 +118,7 @@ public class Builder implements IProperties {
     @Override
     public IProperties progressDialog(Dialog dialog) {
         webParam.dialog = dialog;
-        return null;
+        return this;
     }
 
     @Override
