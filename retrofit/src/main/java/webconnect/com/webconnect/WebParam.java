@@ -102,7 +102,7 @@ public class WebParam implements Serializable {
          */
         DELETE,
         /**
-         *  Multipart
+         *  Multipart type
          */
         MULTIPART
     }
