@@ -4,8 +4,8 @@ group = 'com.github.amitclickapps'
 version = '1.0.6'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion "25.0.2"
+    compileSdkVersion 27
+    buildToolsVersion "27.0.2"
     defaultConfig {
         minSdkVersion 9
         targetSdkVersion 25
@@ -25,13 +25,13 @@ android {
 dependencies {
     compile 'com.android.support:support-annotations:25.3.1'
     /*  Web Calling Retrofit + Okhttp */
-    compile 'com.squareup.retrofit2:retrofit:2.1.0'
-    compile 'com.squareup.retrofit2:converter-gson:2.1.0'
-    compile 'com.squareup.okhttp3:logging-interceptor:3.4.1'
+    compile 'com.squareup.retrofit2:retrofit:2.3.0'
+    compile 'com.squareup.retrofit2:converter-gson:2.3.0'
+    compile 'com.squareup.okhttp3:logging-interceptor:3.9.1'
     // Reactive Android and Java
     compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-    compile 'com.jakewharton.retrofit:retrofit2-rxjava2-adapter:1.0.0'
+    compile 'io.reactivex.rxjava2:rxjava:2.1.7'
+    compile 'com.squareup.retrofit2:adapter-rxjava2:2.3.0'
     /*  IO Lib */
     compile 'commons-io:commons-io:2.4'
 }
