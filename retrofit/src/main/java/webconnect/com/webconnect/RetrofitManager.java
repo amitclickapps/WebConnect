@@ -14,14 +14,21 @@ import java.io.OutputStream;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 import java.net.ConnectException;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.security.cert.CertificateException;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import okhttp3.Cache;
 import okhttp3.Call;
+import okhttp3.Dispatcher;
+import okhttp3.EventListener;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -44,9 +51,11 @@ import retrofit2.converter.gson.GsonConverterFactory;
  * The type Retrofit util.
  */
 public class RetrofitManager {
-    private OkHttpClient.Builder mOkHttpClientBuilder = new OkHttpClient.Builder();
-    private HttpLoggingInterceptor mInterceptor = new HttpLoggingInterceptor();
+    private final OkHttpClient.Builder mOkHttpClientBuilder = new OkHttpClient.Builder();
     private static OkHttpClient.Builder mOkHttpClientBuilderTemp = new OkHttpClient.Builder();
+    private static volatile RetrofitManager sRetrofitManager;
+    int cacheSize = 10 * 1024 * 1024; // 10 MB
+    private Dispatcher dispatcher = new Dispatcher();
 
 
     /**
@@ -57,6 +66,23 @@ public class RetrofitManager {
     }
 
     /**
+     * Get web connect.
+     *
+     * @return the web connect
+     */
+    static RetrofitManager get() {
+        if (sRetrofitManager == null) {
+            synchronized (RetrofitManager.class) {
+                if (sRetrofitManager == null) {
+                    sRetrofitManager = new RetrofitManager();
+                }
+            }
+        }
+        return sRetrofitManager;
+    }
+
+
+    /**
      * Create service t.
      *
      * @param <T>           the type parameter
@@ -65,18 +91,50 @@ public class RetrofitManager {
      * @return the t
      */
     protected <T> T createService(Class<T> interfaceFile, final WebParam webParam) {
-        mInterceptor.setLevel(ApiConfiguration.isDebug() ?
-                HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
+        mOkHttpClientBuilder.interceptors().clear();
+        Cache cache = new Cache(webParam.context.getCacheDir(), cacheSize);
+        mOkHttpClientBuilder.cache(cache);
+        mOkHttpClientBuilder.eventListener(new EventCallback());
+        dispatcher.setMaxRequestsPerHost(2);
+        dispatcher.setMaxRequests(10);
+        mOkHttpClientBuilder.dispatcher(dispatcher);
         mOkHttpClientBuilder.connectTimeout(webParam.connectTimeOut == 0 ? ApiConfiguration.getConnectTimeOut() : webParam.connectTimeOut, TimeUnit.MILLISECONDS);
         mOkHttpClientBuilder.readTimeout(webParam.readTimeOut == 0 ? ApiConfiguration.getReadTimeOut() : webParam.connectTimeOut, TimeUnit.MILLISECONDS);
+        mOkHttpClientBuilder.addNetworkInterceptor(new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Response originalResponse = chain.proceed(chain.request());
+                if (webParam.isCacheEnabled) {
+                    String cacheControl = originalResponse.header("Cache-Control");
+                    if (cacheControl == null || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
+                            cacheControl.contains("must-revalidate") || cacheControl.contains("max-age=0")) {
+                        return originalResponse.newBuilder()
+                                .header("Cache-Control", "public, max-age=" + +Integer.MAX_VALUE)
+                                .build();
+                    } else {
+                        return originalResponse;
+                    }
+                } else {
+                    return originalResponse.newBuilder()
+                            .header("Cache-Control", "no-cache")
+                            .build();
+                }
+            }
+        });
         mOkHttpClientBuilder.addInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Request request = chain.request();
+
                 if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
                     for (Map.Entry<String, String> entry : webParam.headerParam.entrySet()) {
                         request = request.newBuilder().addHeader(entry.getKey(), entry.getValue()).build();
                     }
+                }
+                if (webParam.isCacheEnabled) {
+                    request = request.newBuilder().addHeader("Cache-Control", "public, max-age=" + +Integer.MAX_VALUE).build();
+                } else {
+                    request = request.newBuilder().addHeader("Cache-Control", "no-cache").build();
                 }
                 Response originalResponse = chain.proceed(request);
                 return originalResponse.newBuilder()
@@ -84,6 +142,9 @@ public class RetrofitManager {
                         .build();
             }
         });
+        final HttpLoggingInterceptor mInterceptor = new HttpLoggingInterceptor();
+        mInterceptor.setLevel(ApiConfiguration.isDebug() ?
+                HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
         mOkHttpClientBuilder.addInterceptor(mInterceptor);
         mOkHttpClientBuilderTemp = mOkHttpClientBuilder;
         String baseUrl = ApiConfiguration.getBaseUrl();
@@ -130,6 +191,44 @@ public class RetrofitManager {
             @Override
             public String convert(ResponseBody value) throws IOException {
                 return IOUtils.toString(new InputStreamReader(value.byteStream()));
+            }
+        }
+    }
+
+    private class EventCallback extends EventListener{
+
+        @Override
+        public void callStart(Call call) {
+            if (ApiConfiguration.isDebug()) {
+                Log.e(getClass().getSimpleName(), "callStart");
+            }
+        }
+
+        @Override
+        public void dnsStart(Call call, String domainName) {
+            if (ApiConfiguration.isDebug()) {
+                Log.e(getClass().getSimpleName(), "dnsStart");
+            }
+        }
+
+        @Override
+        public void dnsEnd(Call call, String domainName, List<InetAddress> inetAddressList) {
+            if (ApiConfiguration.isDebug()) {
+                Log.e(getClass().getSimpleName(), "dnsEnd");
+            }
+        }
+
+        @Override
+        public void connectStart(Call call, InetSocketAddress inetSocketAddress, Proxy proxy) {
+            if (ApiConfiguration.isDebug()) {
+                Log.e(getClass().getSimpleName(), "connectStart");
+            }
+        }
+
+        @Override
+        public void callEnd(Call call) {
+            if (ApiConfiguration.isDebug()) {
+                Log.e(getClass().getSimpleName(), "callEnd");
             }
         }
     }

@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 
 public interface IService {
 
-    @GET(MainActivity.ENDPOINT_GET)
+    @GET(MainActivityModel.ENDPOINT_GET)
     Observable<Response<Object>> getPost(@Path("id") int id);
 }
 

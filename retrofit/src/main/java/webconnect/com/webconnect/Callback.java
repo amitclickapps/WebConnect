@@ -97,8 +97,7 @@ public class Callback<T> implements Observer<Response<T>> {
 
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            if (BuildConfig.DEBUG) {
+            if (ApiConfiguration.isDebug()) {
                 Log.e(getClass().getSimpleName(), e.getMessage());
             }
             webParam.callback.onError(e, res, webParam.taskId);
@@ -129,8 +128,7 @@ public class Callback<T> implements Observer<Response<T>> {
                 webParam.callback.onError(errors, errors, webParam.taskId);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            if (BuildConfig.DEBUG) {
+            if (ApiConfiguration.isDebug()) {
                 Log.e(getClass().getSimpleName(), e.getMessage());
             }
             webParam.callback.onError(e.getMessage(), e.getMessage(), webParam.taskId);

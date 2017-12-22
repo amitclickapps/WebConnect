@@ -60,6 +60,6 @@ public class WebConnect {
      */
     @Deprecated
     public static <T> T connect(@NonNull Class<T> cls, @NonNull WebParam webParam) {
-        return new RetrofitManager().createService(cls, webParam);
+        return RetrofitManager.get().createService(cls, webParam);
     }
 }

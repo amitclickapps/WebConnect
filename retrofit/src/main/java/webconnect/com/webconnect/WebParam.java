@@ -76,7 +76,7 @@ public class WebParam implements Serializable {
     /**
      * Download File anyType
      */
-    boolean isFile;
+    boolean isFile, isCacheEnabled = false;
     File file;
 
     /**
@@ -172,4 +172,7 @@ public class WebParam implements Serializable {
         return dialog;
     }
 
+    public boolean isCacheEnabled() {
+        return isCacheEnabled;
+    }
 }

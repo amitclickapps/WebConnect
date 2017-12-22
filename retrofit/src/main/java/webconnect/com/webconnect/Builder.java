@@ -121,6 +121,13 @@ public class Builder implements IProperties {
     }
 
     @Override
+    public Builder cache(boolean isCache) {
+        webParam.isCacheEnabled = isCache;
+        return this;
+    }
+
+
+    @Override
     @Deprecated
     public WebParam build() {
         return webParam;
