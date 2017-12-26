@@ -94,7 +94,7 @@ public class RetrofitManager {
         mOkHttpClientBuilder.interceptors().clear();
         Cache cache = new Cache(webParam.context.getCacheDir(), cacheSize);
         mOkHttpClientBuilder.cache(cache);
-        mOkHttpClientBuilder.eventListener(new EventCallback());
+//        mOkHttpClientBuilder.eventListener(new EventCallback());
         dispatcher.setMaxRequestsPerHost(2);
         dispatcher.setMaxRequests(10);
         mOkHttpClientBuilder.dispatcher(dispatcher);
