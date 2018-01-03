@@ -10,19 +10,17 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
+import com.androidnetworking.AndroidNetworking;
 import com.rx2androidnetworking.Rx2AndroidNetworking;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 import io.reactivex.Observer;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
-import io.reactivex.schedulers.Schedulers;
 import retrofit2.Response;
+import webconnect.com.webconnect.BuilderRequest;
 import webconnect.com.webconnect.WebConnect;
 import webconnect.com.webconnect.WebHandler;
 import webconnect.com.webconnect.WebParam;
@@ -71,46 +69,41 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
 
     public void get() {
         WebConnect.with(this.activity, ENDPOINT_GET)
-                .cache(true)
+                .get()
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
-                        if (object != null) {
-                            //Toast.makeText(MainActivity.this, object.toString(), Toast.LENGTH_SHORT).show();
-                            get.setValue(object);
-                        }
+//                        EventBus.getDefault().post(object);
+                        get.postValue(object);
                     }
 
                     @Override
                     public <T> void onError(@Nullable T object, String error, int taskId) {
-                        get.setValue(object);
+
                     }
                 }).connect();
 
-        Rx2AndroidNetworking.get(ENDPOINT_BASE + ENDPOINT_GET)
-                .build()
-                .getObjectObservable(Object.class)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .map(new Function<Object, Object>() {
-                    @Override
-                    public Object apply(@io.reactivex.annotations.NonNull Object o) throws Exception {
-                        return o;
-                    }
-                })
+
+        BuilderRequest getBuilder = WebConnect.with(this.activity, ENDPOINT_GET)
+                .get()
+                .build();
+        final WebParam param = getBuilder.getParam();
+        getBuilder
+                .execute()
                 .subscribe(new Observer<Object>() {
                     @Override
-                    public void onSubscribe(Disposable d) {
+                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
 
                     }
 
                     @Override
-                    public void onNext(Object user) {
+                    public void onNext(@io.reactivex.annotations.NonNull Object o) {
+                        get.postValue(o);
                     }
 
                     @Override
-                    public void onError(Throwable e) {
-                        Log.i(getClass().getSimpleName(), "onError = " + e.toString());
+                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+
                     }
 
                     @Override
@@ -118,80 +111,53 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
 
                     }
                 });
-
-
-//        final WebParam param = WebConnect.with(this.activity, ENDPOINT_GET)
-//                .build();
-//
-//        final Map<String, Object> requestMap = new LinkedHashMap<>();
-//        requestMap.put("name", "Amit");
-//        requestMap.put("job", "manager");
-//        final WebParam param1 = WebConnect.with(this.activity, ENDPOINT_POST)
-//                .httpType(WebParam.HttpType.POST)
-//                .requestParam(requestMap)
-//                .build();
-//
-//        WebConnect.connect(IService.class, param).get(ENDPOINT_GET, new LinkedHashMap<String, Object>())
-//                .concatMap(new Function<String, ObservableSource<String>>() {
+//                .flatMap(new Function<Object, ObservableSource<?>>() {
 //                    @Override
-//                    public ObservableSource<String> apply(@io.reactivex.annotations.NonNull String s) throws Exception {
-//                        Log.i(getClass().getSimpleName(), "Flat Map 1 = " + s);
-//                        Toast.makeText(activity,"test",Toast.LENGTH_SHORT).show();
-//                        return WebConnect.connect(IService.class, param1).post(ENDPOINT_POST, (Map<String, Object>) param1.getRequestParam());
+//                    public ObservableSource<?> apply(@io.reactivex.annotations.NonNull Object o) throws Exception {
+//                        Offers offers = (Offers) o;
+//                        return Observable.fromIterable(offers.getData());
 //                    }
 //                })
-//                .concatMap(new Function<String, ObservableSource<String>>() {
+//                .filter(new Predicate<Object>() {
 //                    @Override
-//                    public ObservableSource<String> apply(@io.reactivex.annotations.NonNull String s) throws Exception {
-//                        Log.i(getClass().getSimpleName(), "Flat Map 1 = " + s);
-//                        Toast.makeText(activity,"test",Toast.LENGTH_SHORT).show();
-//                        return WebConnect.connect(IService.class, param1).post(ENDPOINT_POST, (Map<String, Object>) param1.getRequestParam());
+//                    public boolean test(@io.reactivex.annotations.NonNull Object o) throws Exception {
+//                        Offers.Data data = (Offers.Data) o;
+//                        return data.getId() == 1 || data.getId() == 2;
 //                    }
 //                })
-//                .concatMap(new Function<String, ObservableSource<String>>() {
-//                    @Override
-//                    public ObservableSource<String> apply(@io.reactivex.annotations.NonNull String s) throws Exception {
-//                        Log.i(getClass().getSimpleName(), "Flat Map 1 = " + s);
-//                        Toast.makeText(activity,"test",Toast.LENGTH_SHORT).show();
-//                        return WebConnect.connect(IService.class, param1).post(ENDPOINT_POST, (Map<String, Object>) param1.getRequestParam());
-//                    }
-//                })
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new Observer<String>() {
+//                .subscribe(new Observer<Object>() {
 //                    @Override
 //                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-//                        Log.i(getClass().getSimpleName(), "onSubscribe");
+//
 //                    }
 //
 //                    @Override
-//                    public void onNext(@io.reactivex.annotations.NonNull String s) {
-//                        Log.i(getClass().getSimpleName(), "onNext" + s);
+//                    public void onNext(@io.reactivex.annotations.NonNull Object o) {
+//                        get.postValue(o);
+//                        EventBus.getDefault().post(o);
 //                    }
 //
 //                    @Override
 //                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-//                        Log.i(getClass().getSimpleName(), "onError" + e.toString());
+//                        get.postValue(e);
 //                    }
 //
 //                    @Override
 //                    public void onComplete() {
-//
+//                        Log.i(getClass().getSimpleName(), "OnCompleted");
 //                    }
 //                });
 
     }
 
-
-    public void post() {
+    public Map<String, String> post() {
         Map<String, String> requestMap = new LinkedHashMap<>();
         requestMap.put("name", "Amit");
         requestMap.put("job", "manager");
         WebConnect.with(this.activity, ENDPOINT_POST)
-                .httpType(WebParam.HttpType.POST)
-                .baseUrl("https://reqres.in/api/test/")
+                .get()
+                .queryParam(requestMap)
                 .cache(true)
-                .requestParam(requestMap)
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
@@ -205,6 +171,7 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
                         post.setValue(object);
                     }
                 }).connect();
+        return requestMap;
     }
 
     public void put() {
@@ -212,8 +179,8 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
         requestMap.put("name", "Amit Singh");
         requestMap.put("job", "manager");
         WebConnect.with(activity, ENDPOINT_PUT)
-                .httpType(WebParam.HttpType.PUT)
-                .requestParam(requestMap)
+                .put()
+                .bodyParam(requestMap)
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
@@ -234,8 +201,8 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
         requestMap.put("name", "Amit Singh");
         requestMap.put("job", "manager");
         WebConnect.with(activity, ENDPOINT_PUT)
-                .httpType(WebParam.HttpType.PUT)
-                .requestParam(requestMap)
+                .delete()
+                .bodyParam(requestMap)
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {

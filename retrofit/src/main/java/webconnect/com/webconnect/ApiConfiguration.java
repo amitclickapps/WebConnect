@@ -1,9 +1,17 @@
 package webconnect.com.webconnect;
 
+import android.app.Application;
 import android.support.annotation.NonNull;
 
+import com.androidnetworking.AndroidNetworking;
+import com.androidnetworking.interceptors.HttpLoggingInterceptor;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
+import java.util.concurrent.TimeUnit;
+
+import okhttp3.Dispatcher;
+import okhttp3.OkHttpClient;
 
 /**
  * Created by amit on 10/8/17.
@@ -16,7 +24,9 @@ public class ApiConfiguration {
             .setDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SSS'Z'")
             .setLenient()
             .create();
-    private static boolean sID_DEBUG = true;
+    private static boolean sIsDEBUG = true;
+    private static OkHttpClient okHttpClient = new OkHttpClient();
+    private static Dispatcher dispatcher = new Dispatcher();
 
     static String getBaseUrl() {
         return sBASE_URL;
@@ -34,14 +44,19 @@ public class ApiConfiguration {
         return sGSON;
     }
 
-    static boolean isDebug() {
-        return sID_DEBUG;
+    public static boolean isDebug() {
+        return sIsDEBUG;
     }
 
     public static class Builder {
         private String baseUrl = "";
+        private Application context;
         private long connectTimeOut = 10 * 1000, readTimeOut = 20 * 1000;
         private boolean isDebug = true;
+
+        public Builder(Application context) {
+            this.context = context;
+        }
 
         public Builder baseUrl(@NonNull String baseUrl) {
             this.baseUrl = baseUrl;
@@ -63,7 +78,18 @@ public class ApiConfiguration {
             sBASE_URL = baseUrl;
             sCONNECT_TIMEOUT_MILLIS = connectTimeOut;
             sREAD_TIMEOUT_MILLIS = readTimeOut;
-            sID_DEBUG = isDebug;
+            sIsDEBUG = isDebug;
+            dispatcher.setMaxRequestsPerHost(2);
+            dispatcher.setMaxRequests(10);
+            okHttpClient
+                    .newBuilder()
+                    .connectTimeout(connectTimeOut, TimeUnit.SECONDS)
+                    .readTimeout(readTimeOut, TimeUnit.SECONDS)
+                    .writeTimeout(connectTimeOut, TimeUnit.SECONDS)
+                    .dispatcher(dispatcher)
+                    .build();
+            AndroidNetworking.initialize(context, okHttpClient);
+            AndroidNetworking.enableLogging(isDebug ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
         }
     }
 }
