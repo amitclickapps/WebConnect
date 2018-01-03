@@ -3,7 +3,6 @@ package webconnect.com.webconnect.di;
 import android.app.Dialog;
 import android.support.annotation.NonNull;
 
-import java.io.File;
 import java.util.Map;
 
 import webconnect.com.webconnect.WebHandler;
@@ -17,11 +16,11 @@ public interface IProperties {
 
     IProperties baseUrl(@NonNull String url);
 
-    IProperties httpType(@NonNull WebParam.HttpType httpType);
+//    IProperties httpType(@NonNull WebParam.HttpType httpType);
 
-    IProperties requestParam(@NonNull Map<String, ?> requestParam);
+//    IProperties requestParam(@NonNull Map<String, ?> requestParam);
 
-    IProperties multipartParam(@NonNull Map<String, ?> multipartParam);
+//    IProperties multipartParam(@NonNull Map<String, ?> multipartParam);
 
     IProperties headerParam(@NonNull Map<String, String> headerParam);
 
@@ -30,24 +29,22 @@ public interface IProperties {
     IProperties callback(@NonNull WebHandler.OnWebCallback callback,
                          @NonNull Class<?> success, @NonNull Class<?> error);
 
-    IProperties successModel(@NonNull Class<?> success);
-
-    IProperties errorModel(@NonNull Class<?> error);
+//    IProperties successModel(@NonNull Class<?> success);
+//
+//    IProperties errorModel(@NonNull Class<?> error);
 
     IProperties taskId(int taskId);
 
     IProperties timeOut(long connectTimeOut, long readTimeOut);
 
-    IProperties downloadFile(File file);
+//    IProperties downloadFile(File file);
 
-    IProperties progressListener(@NonNull WebHandler.ProgressListener callback);
+//    IProperties progressListener(@NonNull WebHandler.ProgressListener callback);
 
     IProperties progressDialog(Dialog dialog);
 
     IProperties cache(boolean isCache);
 
-    @Deprecated
-    WebParam build();
 
     /**
      * To use this have to set these values

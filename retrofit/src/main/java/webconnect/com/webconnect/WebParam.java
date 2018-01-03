@@ -2,7 +2,6 @@ package webconnect.com.webconnect;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 
 import java.io.File;
@@ -42,7 +41,8 @@ public class WebParam implements Serializable {
     /**
      * The Multipart param.
      */
-    Map<String, ?> multipartParam = new LinkedHashMap<>();
+    Map<String, String> multipartParam = new LinkedHashMap<>();
+    Map<String, File> multipartParamFile = new LinkedHashMap<>();
     /**
      * The Header param.
      */
@@ -52,9 +52,11 @@ public class WebParam implements Serializable {
      */
     WebHandler.OnWebCallback callback;
     /**
-     *  Progress during download
+     * Progress during download
      */
     WebHandler.ProgressListener progressListener;
+
+    WebHandler.AnalyticsListener analyticsListener;
     /**
      * Progress Dialog
      */
@@ -76,7 +78,7 @@ public class WebParam implements Serializable {
     /**
      * Download File anyType
      */
-    boolean isFile, isCacheEnabled = false;
+    boolean isCacheEnabled = false;
     File file;
 
     /**
@@ -102,9 +104,23 @@ public class WebParam implements Serializable {
          */
         DELETE,
         /**
-         *  Multipart type
+         * head http type.
          */
-        MULTIPART
+        HEAD,
+        /**
+         * Options http type.
+         */
+        OPTIONS,
+        /**
+         * Multipart type
+         */
+        MULTIPART,
+        /**
+         * Download
+         */
+        DOWNLOAD
+
+
     }
 
 
@@ -132,8 +148,12 @@ public class WebParam implements Serializable {
         return requestParam;
     }
 
-    public Map<String, ?> getMultipartParam() {
+    public Map<String, String> getMultipartParam() {
         return multipartParam;
+    }
+
+    public Map<String, File> getMultipartParamFile() {
+        return multipartParamFile;
     }
 
     public Map<String, String> getHeaderParam() {
@@ -160,10 +180,6 @@ public class WebParam implements Serializable {
         return file;
     }
 
-    public boolean isFile() {
-        return isFile;
-    }
-
     public WebHandler.ProgressListener getProgressListener() {
         return progressListener;
     }
@@ -174,5 +190,9 @@ public class WebParam implements Serializable {
 
     public boolean isCacheEnabled() {
         return isCacheEnabled;
+    }
+
+    public WebHandler.AnalyticsListener getAnalyticsListener() {
+        return analyticsListener;
     }
 }

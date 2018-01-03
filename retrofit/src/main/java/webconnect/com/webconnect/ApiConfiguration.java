@@ -5,13 +5,11 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-import java.io.Serializable;
-
 /**
  * Created by amit on 10/8/17.
  */
 
-public class ApiConfiguration implements Serializable {
+public class ApiConfiguration {
     private static String sBASE_URL = "";
     private static long sCONNECT_TIMEOUT_MILLIS = 10 * 1000, sREAD_TIMEOUT_MILLIS = 20 * 1000;
     private static Gson sGSON = new GsonBuilder()

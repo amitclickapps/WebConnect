@@ -53,21 +53,4 @@ public class WebConnect {
     public static Builder with(@NonNull Context context, @NonNull String url) {
         return new Builder(context, url);
     }
-
-
-    /*
-     * Connect
-     */
-    @Deprecated
-    public static <T> T connect(@NonNull Class<T> cls, @NonNull WebParam webParam) {
-        return RetrofitManager.get().createService(cls, webParam);
-    }
-
-    /*
-     * Connect
-     */
-    @Deprecated
-    public static <T> T connect(@NonNull WebParam webParam) {
-        return (T) RetrofitManager.get().createService(IAPIService.class, webParam);
-    }
 }

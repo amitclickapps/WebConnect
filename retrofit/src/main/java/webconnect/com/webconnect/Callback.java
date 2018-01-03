@@ -4,13 +4,10 @@ package webconnect.com.webconnect;
  * Created by amit on 10/8/17.
  */
 
-import android.text.TextUtils;
-import android.util.Log;
+import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.DownloadListener;
+import com.androidnetworking.interfaces.DownloadProgressListener;
 
-import org.apache.commons.io.IOUtils;
-
-import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
@@ -18,125 +15,155 @@ import java.security.cert.CertificateException;
 import java.util.concurrent.TimeoutException;
 
 import io.reactivex.Observer;
-import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
-import okhttp3.ResponseBody;
-import retrofit2.Response;
 
 /**
  * The type Call back.
  *
  * @param <T> the type parameter
  */
-public class Callback<T> implements Observer<Response<T>> {
-    private WebParam webParam;
+public class Callback<T> {
 
-    /**
-     * Instantiates a new Call back.
-     *
-     * @param webParam the web param
-     */
-    public Callback(WebParam webParam) {
-        this.webParam = webParam;
-    }
+    static class GetRequestCallback implements Observer<Object> {
 
-    @Override
-    public void onSubscribe(@NonNull Disposable d) {
+        private WebParam param;
 
-    }
+        public GetRequestCallback(WebParam param) {
+            this.param = param;
+        }
 
-    @Override
-    public void onNext(@NonNull retrofit2.Response<T> response) {
-        String res = "";
-        try {
-            if (webParam.dialog != null &&
-                    webParam.dialog.isShowing()) {
-                webParam.dialog.dismiss();
+        @Override
+        public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+            if (param.dialog != null &&
+                    !param.dialog.isShowing()) {
+                param.dialog.show();
             }
-            Object object;
-            if (webParam.callback == null) {
-                return;
-            }
+        }
 
-            if (response.isSuccessful()) {
-                if (response.body() instanceof String) {
-                    res = response.body().toString();
-                }
-                if (!webParam.isFile) {
-                    if (webParam.model != null
-                            && !TextUtils.isEmpty(res)) {
-                        object = ApiConfiguration.getGson().fromJson(res, webParam.model);
-                    } else if (!TextUtils.isEmpty(res)) {
-                        object = ApiConfiguration.getGson().fromJson(res, Object.class);
-                    } else {
-                        object = res;
-                    }
-                } else {
-                    ResponseBody body = (ResponseBody) response.body();
-                    object = webParam.file;
-                    OutputStream out = null;
-                    try {
-                        out = new FileOutputStream(webParam.file);
-                        IOUtils.copy(body.byteStream(), out);
-                    } finally {
-                        IOUtils.closeQuietly(out);
-                    }
-                }
-                webParam.callback.onSuccess(object, webParam.taskId, response);
-            } else {
-                res = response.errorBody().string();
-                if (webParam.error != null
-                        && !TextUtils.isEmpty(res)) {
-                    object = ApiConfiguration.getGson().fromJson(res, webParam.error);
-                } else if (!TextUtils.isEmpty(res)) {
-                    object = ApiConfiguration.getGson().fromJson(res, Object.class);
-                } else {
-                    object = res;
-                }
-                webParam.callback.onError(object, res, webParam.taskId);
+        @Override
+        public void onNext(@io.reactivex.annotations.NonNull Object response) {
+            if (param.callback != null) {
+                param.callback.onSuccess(response, param.taskId, null);
+            }
+        }
 
+        @Override
+        public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+            if (param.callback != null) {
+                param.callback.onError(e, getError(param, e), param.taskId);
             }
-        } catch (Exception e) {
-            if (ApiConfiguration.isDebug()) {
-                Log.e(getClass().getSimpleName(), e.getMessage());
+        }
+
+        @Override
+        public void onComplete() {
+            if (param.dialog != null &&
+                    param.dialog.isShowing()) {
+                param.dialog.dismiss();
             }
-            webParam.callback.onError(e, res, webParam.taskId);
         }
     }
 
-    @Override
-    public void onError(@NonNull Throwable t) {
-        try {
-            if (webParam.dialog != null &&
-                    webParam.dialog.isShowing()) {
-                webParam.dialog.dismiss();
+    static class PostRequestCallback implements Observer<Object> {
+
+        private WebParam param;
+
+        public PostRequestCallback(WebParam param) {
+            this.param = param;
+        }
+
+        @Override
+        public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
+            if (param.dialog != null &&
+                    !param.dialog.isShowing()) {
+                param.dialog.show();
             }
-            if (webParam.callback != null
-                    && webParam.context != null) {
-                String errors;
-                if (t.getClass().getName().contains(UnknownHostException.class.getName())) {
-                    errors = webParam.context.getString(R.string.error_internet_connection);
-                } else if (t.getClass().getName().contains(TimeoutException.class.getName())
-                        || t.getClass().getName().contains(SocketTimeoutException.class.getName())
-                        || t.getClass().getName().contains(ConnectException.class.getName())) {
-                    errors = webParam.context.getString(R.string.error_server_connection);
-                } else if (t.getClass().getName().contains(CertificateException.class.getName())) {
-                    errors = webParam.context.getString(R.string.error_certificate_exception);
-                } else {
-                    errors = t.toString();
-                }
-                webParam.callback.onError(errors, errors, webParam.taskId);
+        }
+
+        @Override
+        public void onNext(@io.reactivex.annotations.NonNull Object response) {
+            if (param.callback != null) {
+                param.callback.onSuccess(response, param.taskId, null);
             }
-        } catch (Exception e) {
-            if (ApiConfiguration.isDebug()) {
-                Log.e(getClass().getSimpleName(), e.getMessage());
+        }
+
+        @Override
+        public void onError(@io.reactivex.annotations.NonNull Throwable e) {
+            if (param.callback != null) {
+                param.callback.onError(e, getError(param, e), param.taskId);
             }
-            webParam.callback.onError(e.getMessage(), e.getMessage(), webParam.taskId);
+        }
+
+        @Override
+        public void onComplete() {
+            if (param.dialog != null &&
+                    param.dialog.isShowing()) {
+                param.dialog.dismiss();
+            }
         }
     }
 
-    @Override
-    public void onComplete() {
 
+    static class DownloadRequestCallback implements DownloadListener {
+
+        private WebParam param;
+
+        public DownloadRequestCallback(WebParam param) {
+            this.param = param;
+        }
+
+        @Override
+        public void onDownloadComplete() {
+            if (param.callback != null) {
+                param.callback.onSuccess(this.param.file, this.param.taskId, null);
+            }
+        }
+
+        @Override
+        public void onError(ANError anError) {
+            if (param.callback != null) {
+                param.callback.onError(anError.getCause(), getError(param, anError.getCause()), param.taskId);
+            }
+        }
     }
+
+
+    static class UploadRequestCallback extends PostRequestCallback {
+
+        public UploadRequestCallback(WebParam param) {
+            super(param);
+        }
+    }
+
+    static class ProgressCallback implements DownloadProgressListener {
+
+        private WebParam param;
+
+        public ProgressCallback(WebParam param) {
+            this.param = param;
+        }
+
+        @Override
+        public void onProgress(long bytesDownloaded, long totalBytes) {
+            if (param.progressListener != null) {
+                param.progressListener.update(bytesDownloaded, totalBytes, true);
+            }
+        }
+    }
+
+    private static String getError(WebParam param, Throwable t) {
+        String errors;
+        if (t.getClass().getName().contains(UnknownHostException.class.getName())) {
+            errors = param.context.getString(R.string.error_internet_connection);
+        } else if (t.getClass().getName().contains(TimeoutException.class.getName())
+                || t.getClass().getName().contains(SocketTimeoutException.class.getName())
+                || t.getClass().getName().contains(ConnectException.class.getName())) {
+            errors = param.context.getString(R.string.error_server_connection);
+        } else if (t.getClass().getName().contains(CertificateException.class.getName())) {
+            errors = param.context.getString(R.string.error_certificate_exception);
+        } else {
+            errors = t.toString();
+        }
+        return errors;
+    }
+
 }
