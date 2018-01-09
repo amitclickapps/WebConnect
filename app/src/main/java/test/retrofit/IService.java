@@ -17,9 +17,6 @@ import retrofit2.http.QueryMap;
 
 public interface IService {
 
-    @GET(MainActivityModel.ENDPOINT_GET)
-    Observable<Response<Object>> getPost(@Path("id") int id);
-
 
     @GET("{offers}")
     Observable<String> get(@Path(value = "offers", encoded = true) String pathSegment, @QueryMap Map<String, Object> map);

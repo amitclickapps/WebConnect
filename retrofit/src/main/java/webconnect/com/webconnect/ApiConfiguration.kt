@@ -4,6 +4,7 @@ import android.app.Application
 import com.androidnetworking.AndroidNetworking
 import com.androidnetworking.interceptors.HttpLoggingInterceptor
 import com.google.gson.GsonBuilder
+import okhttp3.Cache
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import java.util.concurrent.TimeUnit
@@ -23,6 +24,7 @@ object ApiConfiguration {
             .setDateFormat("yyyy'-'MM'-'dd'T'HH':'mm':'ss'.'SSS'Z'")
             .setLenient()
             .create()
+    val cacheSize = 10 * 1024 * 1024L
     var isDebug = true
         internal set
     private val okHttpClient = OkHttpClient()
@@ -57,8 +59,10 @@ object ApiConfiguration {
             ApiConfiguration.isDebug = isDebug
             dispatcher.maxRequestsPerHost = 2
             dispatcher.maxRequests = 10
+            var cache = Cache(context.cacheDir, cacheSize)
             okHttpClient
                     .newBuilder()
+                    .cache(cache)
                     .connectTimeout(connectTimeOut, TimeUnit.SECONDS)
                     .readTimeout(readTimeOut, TimeUnit.SECONDS)
                     .writeTimeout(connectTimeOut, TimeUnit.SECONDS)
