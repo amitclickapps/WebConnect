@@ -45,7 +45,26 @@ public class Request<T extends Request> {
     }
 
     public Observable<?> execute() {
-        return new GetRequestBuilder<>(param).execute();
+        switch (param.httpType) {
+            case GET:
+                return new GetRequestBuilder<>(param).execute();
+            case OPTIONS:
+                return new GetRequestBuilder<>(param).execute();
+            case HEAD:
+                return new GetRequestBuilder<>(param).execute();
+            case POST:
+                return new PostRequestBuilder<>(param).execute();
+            case PUT:
+                return new PostRequestBuilder<>(param).execute();
+            case PATCH:
+                return new PostRequestBuilder<>(param).execute();
+            case DELETE:
+                return new PostRequestBuilder<>(param).execute();
+            case MULTIPART:
+                return new MultiPartBuilder<>(param).execute();
+            default:
+                return new GetRequestBuilder<>(param).execute();
+        }
     }
 
     public static class GetRequestBuilder<T extends GetRequestBuilder> implements IProperties {
@@ -379,10 +398,6 @@ public class Request<T extends Request> {
         public T file(@NonNull File file) {
             param.file = file;
             return (T) this;
-        }
-
-        public Request build() {
-            return new Request(this);
         }
 
         @Override
