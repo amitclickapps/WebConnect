@@ -62,24 +62,24 @@ public class HTTPManager {
     OkHttpClient getDefaultOkHttpClient(@NonNull WebParam webParam) {
         if (okHttpClient == null) {
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
-            Cache cache = new Cache(webParam.context.getCacheDir(), cacheSize);
+            Cache cache = new Cache(webParam.getContext().getCacheDir(), cacheSize);
             builder.cache(cache);
-            builder.connectTimeout(ApiConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
-            builder.writeTimeout(ApiConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
-            builder.readTimeout(ApiConfiguration.getReadTimeOut(), TimeUnit.MILLISECONDS);
+            builder.connectTimeout(ApiConfiguration.INSTANCE.getConnectTimeOut(), TimeUnit.MILLISECONDS);
+            builder.writeTimeout(ApiConfiguration.INSTANCE.getConnectTimeOut(), TimeUnit.MILLISECONDS);
+            builder.readTimeout(ApiConfiguration.INSTANCE.getReadTimeOut(), TimeUnit.MILLISECONDS);
             dispatcher.setMaxRequestsPerHost(2);
             dispatcher.setMaxRequests(10);
             builder.dispatcher(dispatcher);
-            interceptor.setLevel(ApiConfiguration.isDebug() ?
+            interceptor.setLevel(ApiConfiguration.INSTANCE.isDebug() ?
                     HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
             builder.addInterceptor(interceptor);
             okHttpClient = builder.build();
         }
-        if (webParam.connectTimeOut > 0 || webParam.readTimeOut > 0) {
+        if (webParam.getConnectTimeOut() > 0 || webParam.getReadTimeOut() > 0) {
             return okHttpClient.newBuilder()
-                    .connectTimeout(webParam.connectTimeOut, TimeUnit.MILLISECONDS)
-                    .writeTimeout(webParam.connectTimeOut, TimeUnit.MILLISECONDS)
-                    .readTimeout(webParam.readTimeOut, TimeUnit.MILLISECONDS)
+                    .connectTimeout(webParam.getConnectTimeOut(), TimeUnit.MILLISECONDS)
+                    .writeTimeout(webParam.getConnectTimeOut(), TimeUnit.MILLISECONDS)
+                    .readTimeout(webParam.getReadTimeOut(), TimeUnit.MILLISECONDS)
                     .build();
         }
         return okHttpClient;
@@ -91,14 +91,14 @@ public class HTTPManager {
      * @return
      */
     <T> Observable<Response> performSimpleRequest(final WebParam webParam) {
-        String baseUrl = ApiConfiguration.getBaseUrl();
-        if (!TextUtils.isEmpty(webParam.baseUrl)) {
-            baseUrl = webParam.baseUrl;
+        String baseUrl = ApiConfiguration.INSTANCE.getBaseUrl();
+        if (!TextUtils.isEmpty(webParam.getBaseUrl())) {
+            baseUrl = webParam.getBaseUrl();
         }
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + webParam.url).newBuilder();
-        if (webParam.requestParam != null && webParam.requestParam.size() > 0) {
-            Set<? extends Map.Entry<String, ?>> entries = webParam.requestParam.entrySet();
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + webParam.getUrl()).newBuilder();
+        if (webParam.getRequestParam() != null && webParam.getRequestParam().size() > 0) {
+            Set<? extends Map.Entry<String, ?>> entries = webParam.getRequestParam().entrySet();
             for (Map.Entry<String, ?> entry : entries) {
                 String name = entry.getKey();
                 List<String> list = (List<String>) entry.getValue();
@@ -109,32 +109,32 @@ public class HTTPManager {
         }
         builder.url(urlBuilder.build().toString());
 
-        if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
+        if (webParam.getHeaderParam() != null && webParam.getHeaderParam().size() > 0) {
             Headers.Builder headerBuilder = new Headers.Builder();
-            for (Map.Entry<String, String> entry : webParam.headerParam.entrySet()) {
+            for (Map.Entry<String, String> entry : webParam.getHeaderParam().entrySet()) {
                 headerBuilder.add(entry.getKey(), entry.getValue());
             }
             builder.headers(headerBuilder.build());
         }
 
         RequestBody requestBody;
-        switch (webParam.httpType) {
+        switch (webParam.getHttpType()) {
             case GET: {
                 builder = builder.get();
                 break;
             }
             case POST: {
-                requestBody = RequestBody.create(JSON_MEDIA_TYPE, new Gson().toJson(webParam.requestParam));
+                requestBody = RequestBody.create(JSON_MEDIA_TYPE, new Gson().toJson(webParam.getRequestParam()));
                 builder = builder.post(requestBody);
                 break;
             }
             case PUT: {
-                requestBody = RequestBody.create(JSON_MEDIA_TYPE, new Gson().toJson(webParam.requestParam));
+                requestBody = RequestBody.create(JSON_MEDIA_TYPE, new Gson().toJson(webParam.getRequestParam()));
                 builder = builder.put(requestBody);
                 break;
             }
             case DELETE: {
-                requestBody = RequestBody.create(JSON_MEDIA_TYPE, new Gson().toJson(webParam.requestParam));
+                requestBody = RequestBody.create(JSON_MEDIA_TYPE, new Gson().toJson(webParam.getRequestParam()));
                 builder = builder.delete(requestBody);
                 break;
             }
@@ -147,7 +147,7 @@ public class HTTPManager {
                 break;
             }
             case PATCH: {
-                requestBody = RequestBody.create(JSON_MEDIA_TYPE, new Gson().toJson(webParam.requestParam));
+                requestBody = RequestBody.create(JSON_MEDIA_TYPE, new Gson().toJson(webParam.getRequestParam()));
                 builder = builder.patch(requestBody);
                 break;
             }
@@ -155,7 +155,7 @@ public class HTTPManager {
 
             }
         }
-        if (webParam.isCacheEnabled) {
+        if (webParam.isCacheEnabled()) {
             builder.cacheControl(CacheControl.FORCE_CACHE);
         } else {
             builder.cacheControl(CacheControl.FORCE_NETWORK);
@@ -171,15 +171,15 @@ public class HTTPManager {
      * @return
      */
     <T> Observable<T> generateDownloadObservable(final WebParam webParam) {
-        String baseUrl = ApiConfiguration.getBaseUrl();
-        if (!TextUtils.isEmpty(webParam.baseUrl)) {
-            baseUrl = webParam.baseUrl;
+        String baseUrl = ApiConfiguration.INSTANCE.getBaseUrl();
+        if (!TextUtils.isEmpty(webParam.getBaseUrl())) {
+            baseUrl = webParam.getBaseUrl();
         }
         OkHttpClient client = getDefaultOkHttpClient(webParam);
         okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
-        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + webParam.url).newBuilder();
-        if (webParam.requestParam != null && webParam.requestParam.size() > 0) {
-            Set<? extends Map.Entry<String, ?>> entries = webParam.requestParam.entrySet();
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + webParam.getUrl()).newBuilder();
+        if (webParam.getRequestParam() != null && webParam.getRequestParam().size() > 0) {
+            Set<? extends Map.Entry<String, ?>> entries = webParam.getRequestParam().entrySet();
             for (Map.Entry<String, ?> entry : entries) {
                 String name = entry.getKey();
                 List<String> list = (List<String>) entry.getValue();
@@ -189,15 +189,15 @@ public class HTTPManager {
             }
         }
         builder.url(urlBuilder.build().toString());
-        if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
+        if (webParam.getHeaderParam() != null && webParam.getHeaderParam().size() > 0) {
             Headers.Builder headerBuilder = new Headers.Builder();
-            for (Map.Entry<String, String> entry : webParam.headerParam.entrySet()) {
+            for (Map.Entry<String, String> entry : webParam.getHeaderParam().entrySet()) {
                 headerBuilder.add(entry.getKey(), entry.getValue());
             }
             builder.headers(headerBuilder.build());
         }
 
-        if (webParam.isCacheEnabled) {
+        if (webParam.isCacheEnabled()) {
             builder.cacheControl(CacheControl.FORCE_CACHE);
         } else {
             builder.cacheControl(CacheControl.FORCE_NETWORK);

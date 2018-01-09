@@ -39,8 +39,8 @@ public class RxObservable {
                 T object;
                 if (okHttpResponse.isSuccessful()) {
                     if (okHttpResponse.body() != null) {
-                        if (param.model != null) {
-                            object = (T) new Gson().fromJson(okHttpResponse.body().string(), param.model);
+                        if (param.getModel() != null) {
+                            object = (T) new Gson().fromJson(okHttpResponse.body().string(), param.getModel());
                         } else {
                             object = (T) new Gson().fromJson(okHttpResponse.body().string(), Object.class);
                         }

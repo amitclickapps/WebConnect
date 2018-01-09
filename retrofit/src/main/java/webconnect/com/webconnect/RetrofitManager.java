@@ -18,7 +18,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
-import okio.Okio;
 import retrofit2.Converter;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
@@ -56,21 +55,21 @@ public class RetrofitManager {
 
     OkHttpClient.Builder getHttpBuilder(final WebParam webParam) {
         okHttpClientBuilder.interceptors().clear();
-        interceptor.setLevel(ApiConfiguration.isDebug() ?
+        interceptor.setLevel(ApiConfiguration.INSTANCE.isDebug() ?
                 HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
         okHttpClientBuilder.addInterceptor(interceptor);
-        Cache cache = new Cache(webParam.context.getCacheDir(), cacheSize);
+        Cache cache = new Cache(webParam.getContext().getCacheDir(), cacheSize);
         okHttpClientBuilder.cache(cache);
         dispatcher.setMaxRequestsPerHost(2);
         dispatcher.setMaxRequests(10);
         okHttpClientBuilder.dispatcher(dispatcher);
-        okHttpClientBuilder.connectTimeout(webParam.connectTimeOut == 0 ? ApiConfiguration.getConnectTimeOut() : webParam.connectTimeOut, TimeUnit.MILLISECONDS);
-        okHttpClientBuilder.readTimeout(webParam.readTimeOut == 0 ? ApiConfiguration.getReadTimeOut() : webParam.connectTimeOut, TimeUnit.MILLISECONDS);
+        okHttpClientBuilder.connectTimeout(webParam.getConnectTimeOut() == 0 ? ApiConfiguration.INSTANCE.getConnectTimeOut() : webParam.getConnectTimeOut(), TimeUnit.MILLISECONDS);
+        okHttpClientBuilder.readTimeout(webParam.getReadTimeOut() == 0 ? ApiConfiguration.INSTANCE.getReadTimeOut() : webParam.getConnectTimeOut(), TimeUnit.MILLISECONDS);
         okHttpClientBuilder.addNetworkInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Response originalResponse = chain.proceed(chain.request());
-                if (webParam.isCacheEnabled) {
+                if (webParam.isCacheEnabled()) {
                     String cacheControl = originalResponse.header("Cache-Control");
                     if (cacheControl == null || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
                             cacheControl.contains("must-revalidate") || cacheControl.contains("max-age=0")) {
@@ -92,12 +91,12 @@ public class RetrofitManager {
             public Response intercept(Chain chain) throws IOException {
                 okhttp3.Request request = chain.request();
 
-                if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
-                    for (Map.Entry<String, String> entry : webParam.headerParam.entrySet()) {
+                if (webParam.getHeaderParam() != null && webParam.getHeaderParam().size() > 0) {
+                    for (Map.Entry<String, String> entry : webParam.getHeaderParam().entrySet()) {
                         request = request.newBuilder().addHeader(entry.getKey(), entry.getValue()).build();
                     }
                 }
-                if (webParam.isCacheEnabled) {
+                if (webParam.isCacheEnabled()) {
                     request = request.newBuilder().addHeader("Cache-Control", "public, max-age=" + +Integer.MAX_VALUE).build();
                 } else {
                     request = request.newBuilder().addHeader("Cache-Control", "no-cache").build();
@@ -111,23 +110,23 @@ public class RetrofitManager {
 
     Retrofit.Builder getRetrofit(String baseUrl) {
         if (TextUtils.isEmpty(baseUrl)) {
-            baseUrl = ApiConfiguration.getBaseUrl();
+            baseUrl = ApiConfiguration.INSTANCE.getBaseUrl();
         }
         Retrofit.Builder builder = new Retrofit.Builder()
                 .baseUrl(baseUrl)
                 .addConverterFactory(StringConverterFactory.create())
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create(ApiConfiguration.getGson()));
+                .addConverterFactory(GsonConverterFactory.create(ApiConfiguration.INSTANCE.getGson()));
         return builder;
     }
 
     IAPIService createService(final WebParam webParam) {
-        return getRetrofit(webParam.baseUrl)
+        return getRetrofit(webParam.getBaseUrl())
                 .client(getHttpBuilder(webParam).build()).build().create(IAPIService.class);
     }
 
     <T> T createService(Class<T> service, final WebParam webParam) {
-        return getRetrofit(webParam.baseUrl)
+        return getRetrofit(webParam.getBaseUrl())
                 .client(getHttpBuilder(webParam).build()).build().create(service);
     }
 

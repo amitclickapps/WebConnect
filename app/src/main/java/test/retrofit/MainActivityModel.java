@@ -11,19 +11,12 @@ import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.androidnetworking.AndroidNetworking;
-import com.rx2androidnetworking.Rx2AndroidNetworking;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import io.reactivex.Observer;
-import io.reactivex.disposables.Disposable;
 import retrofit2.Response;
-import webconnect.com.webconnect.BuilderRequest;
 import webconnect.com.webconnect.WebConnect;
 import webconnect.com.webconnect.WebHandler;
-import webconnect.com.webconnect.WebParam;
 
 /**
  * Created by clickapps on 22/12/17.
@@ -68,49 +61,9 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
     }
 
     public void get() {
-        WebConnect.with(this.activity, ENDPOINT_GET)
+        WebConnect.INSTANCE.with(this.activity, ENDPOINT_GET)
                 .get()
-                .callback(new WebHandler.OnWebCallback() {
-                    @Override
-                    public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
-//                        EventBus.getDefault().post(object);
-                        get.postValue(object);
-                    }
-
-                    @Override
-                    public <T> void onError(@Nullable T object, String error, int taskId) {
-
-                    }
-                }).connect();
-
-
-        BuilderRequest getBuilder = WebConnect.with(this.activity, ENDPOINT_GET)
-                .get()
-                .build();
-        final WebParam param = getBuilder.getParam();
-        getBuilder
-                .execute()
-                .subscribe(new Observer<Object>() {
-                    @Override
-                    public void onSubscribe(@io.reactivex.annotations.NonNull Disposable d) {
-
-                    }
-
-                    @Override
-                    public void onNext(@io.reactivex.annotations.NonNull Object o) {
-                        get.postValue(o);
-                    }
-
-                    @Override
-                    public void onError(@io.reactivex.annotations.NonNull Throwable e) {
-
-                    }
-
-                    @Override
-                    public void onComplete() {
-
-                    }
-                });
+                .connect();
 //                .flatMap(new Function<Object, ObservableSource<?>>() {
 //                    @Override
 //                    public ObservableSource<?> apply(@io.reactivex.annotations.NonNull Object o) throws Exception {
@@ -154,13 +107,13 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
         Map<String, String> requestMap = new LinkedHashMap<>();
         requestMap.put("name", "Amit");
         requestMap.put("job", "manager");
-        WebConnect.with(this.activity, ENDPOINT_POST)
+        WebConnect.INSTANCE.with(this.activity, ENDPOINT_POST)
                 .get()
                 .queryParam(requestMap)
                 .cache(true)
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
-                    public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
+                    public <T> void onSuccess(@Nullable T object, int taskId, Response<?> response) {
                         if (object != null) {
                             post.setValue(object);
                         }
@@ -178,12 +131,12 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
         Map<String, String> requestMap = new LinkedHashMap<>();
         requestMap.put("name", "Amit Singh");
         requestMap.put("job", "manager");
-        WebConnect.with(activity, ENDPOINT_PUT)
+        WebConnect.INSTANCE.with(activity, ENDPOINT_PUT)
                 .put()
                 .bodyParam(requestMap)
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
-                    public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
+                    public <T> void onSuccess(@Nullable T object, int taskId, Response<?> response) {
                         if (object != null) {
                             put.setValue(object);
                         }
@@ -200,12 +153,12 @@ public class MainActivityModel extends AndroidViewModel implements LifecycleObse
         Map<String, String> requestMap = new LinkedHashMap<>();
         requestMap.put("name", "Amit Singh");
         requestMap.put("job", "manager");
-        WebConnect.with(activity, ENDPOINT_PUT)
+        WebConnect.INSTANCE.with(activity, ENDPOINT_PUT)
                 .delete()
                 .bodyParam(requestMap)
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
-                    public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
+                    public <T> void onSuccess(@Nullable T object, int taskId, Response<?> response) {
                         if (object != null) {
                             delete.setValue(object);
                         }
