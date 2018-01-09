@@ -149,7 +149,11 @@ open class Request {
             if (okHttpClient != null) {
                 getBuilder.setOkHttpClient(okHttpClient)
             }
-            if (param.isCacheEnabled) getBuilder.responseOnlyIfCached else getBuilder.responseOnlyFromNetwork
+            if (param.isCacheEnabled) {
+                getBuilder.setMaxAgeCacheControl(Int.MAX_VALUE, TimeUnit.SECONDS)
+                getBuilder.setMaxStaleCacheControl(1, TimeUnit.SECONDS)
+                getBuilder.responseOnlyIfCached
+            } else getBuilder.responseOnlyFromNetwork
             return getBuilder.setTag(param.taskId)
                     .build()
                     .getObjectObservable(param.model)
@@ -248,7 +252,11 @@ open class Request {
             if (okHttpClient != null) {
                 postBuilder.setOkHttpClient(okHttpClient)
             }
-            if (param.isCacheEnabled) postBuilder.responseOnlyIfCached else postBuilder.responseOnlyFromNetwork
+            if (param.isCacheEnabled) {
+                postBuilder.setMaxAgeCacheControl(Int.MAX_VALUE, TimeUnit.SECONDS)
+                postBuilder.setMaxStaleCacheControl(1, TimeUnit.SECONDS)
+                postBuilder.responseOnlyIfCached
+            } else postBuilder.responseOnlyFromNetwork
             return postBuilder.setTag(param.taskId)
                     .build()
                     .getObjectObservable(param.model)
