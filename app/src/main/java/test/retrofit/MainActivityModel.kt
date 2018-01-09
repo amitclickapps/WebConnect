@@ -47,7 +47,6 @@ class MainActivityModel(application: Application) : AndroidViewModel(application
     fun get() {
         WebConnect.with(this.activity, ENDPOINT_GET)
                 .get()
-                .cache(true)
                 .callback(object : WebHandler.OnWebCallback {
                     override fun <T> onSuccess(`object`: T?, taskId: Int, response: Response<*>?) {
                         get.value = `object`
@@ -55,19 +54,6 @@ class MainActivityModel(application: Application) : AndroidViewModel(application
 
                     override fun <T> onError(`object`: T?, error: String, taskId: Int) {
                         get.value = `object`
-                        WebConnect.with(activity, ENDPOINT_GET)
-                                .get()
-                                .callback(object : WebHandler.OnWebCallback {
-                                    override fun <T> onSuccess(`object`: T?, taskId: Int, response: Response<*>?) {
-                                        get.value = `object`
-                                    }
-
-                                    override fun <T> onError(`object`: T?, error: String, taskId: Int) {
-                                        get.value = `object`
-                                    }
-
-                                })
-                                .connect()
                     }
 
                 })
@@ -93,20 +79,6 @@ class MainActivityModel(application: Application) : AndroidViewModel(application
 
                     override fun <T> onError(`object`: T?, error: String, taskId: Int) {
                         post.value = `object`
-                        WebConnect.with(activity, ENDPOINT_POST)
-                                .post()
-                                .bodyParam(requestMap)
-                                .callback(object : WebHandler.OnWebCallback {
-                                    override fun <T> onSuccess(`object`: T?, taskId: Int, response: Response<*>?) {
-                                        if (`object` != null) {
-                                            post.value = `object`
-                                        }
-                                    }
-
-                                    override fun <T> onError(`object`: T?, error: String, taskId: Int) {
-                                        post.value = `object`
-                                    }
-                                }).connect()
                     }
                 }).connect()
         return requestMap
@@ -118,7 +90,6 @@ class MainActivityModel(application: Application) : AndroidViewModel(application
         requestMap.put("job", "manager")
         WebConnect.with(activity, ENDPOINT_PUT)
                 .put()
-                .cache(true)
                 .bodyParam(requestMap)
                 .callback(object : WebHandler.OnWebCallback {
                     override fun <T> onSuccess(`object`: T?, taskId: Int, response: Response<*>?) {
