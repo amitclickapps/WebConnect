@@ -1,6 +1,5 @@
 package test.retrofit;
 
-import android.arch.lifecycle.LifecycleRegistry;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
@@ -17,7 +16,6 @@ import org.greenrobot.eventbus.ThreadMode;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import io.reactivex.functions.Consumer;
 
 /**
  * Created by clickapps on 31/8/17.
@@ -34,17 +32,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Button deleteBtn;
 
     MainActivityModel mainActivityModel;
-    private LifecycleRegistry mLifecycleRegistry;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        mLifecycleRegistry = new LifecycleRegistry(this);
         MainActivityModel.MainActivityModelFactory factory = new MainActivityModel.MainActivityModelFactory(getApplication());
         mainActivityModel = ViewModelProviders.of(this, factory).get(MainActivityModel.class);
-        getLifecycleRegistry().addObserver(mainActivityModel);
         ButterKnife.bind(this);
         getBtn.setOnClickListener(this);
         postBtn.setOnClickListener(this);
@@ -56,7 +51,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mainActivityModel.getGet().observe(this, new Observer<Object>() {
             @Override
             public void onChanged(@Nullable Object object) {
-                if (object == null) return;
                 Toast.makeText(MainActivity.this, object.toString(), Toast.LENGTH_LONG).show();
             }
         });
@@ -72,10 +66,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
 
-    }
-
-    public LifecycleRegistry getLifecycleRegistry() {
-        return mLifecycleRegistry;
     }
 
     @Override
@@ -99,7 +89,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        getLifecycleRegistry().removeObserver(mainActivityModel);
+//        getLifecycleRegistry().removeObserver(mainActivityModel);
     }
 
     @Override

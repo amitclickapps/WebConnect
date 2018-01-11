@@ -64,11 +64,11 @@ public class WebParam implements Serializable {
     /**
      * The Model.
      */
-    Class<?> model;
+    Class<?> model = Object.class;
     /**
      * The Error.
      */
-    Class<?> error;
+    Class<?> error = Object.class;
     /**
      * The Task id.
      */
@@ -80,6 +80,8 @@ public class WebParam implements Serializable {
      */
     boolean isCacheEnabled = false;
     File file;
+
+    long requestBodyContentlength = -1;
 
     /**
      * The enum Http type.

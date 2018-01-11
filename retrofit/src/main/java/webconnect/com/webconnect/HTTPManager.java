@@ -3,9 +3,12 @@ package webconnect.com.webconnect;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
+import com.androidnetworking.utils.Utils;
 import com.google.gson.Gson;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,6 +23,7 @@ import okhttp3.Headers;
 import okhttp3.HttpUrl;
 import okhttp3.Interceptor;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -36,7 +40,7 @@ public class HTTPManager {
     private final OkHttpClient.Builder okHttpClientBuilder = new OkHttpClient.Builder();
     private Dispatcher dispatcher = new Dispatcher();
     final HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
-    OkHttpClient okHttpClient;
+    OkHttpClient okHttpClient = ApiConfiguration.getOkHttpClient();
     private final MediaType JSON_MEDIA_TYPE =
             MediaType.parse("application/json; charset=utf-8");
 
@@ -64,9 +68,9 @@ public class HTTPManager {
             OkHttpClient.Builder builder = new OkHttpClient.Builder();
             Cache cache = new Cache(webParam.context.getCacheDir(), cacheSize);
             builder.cache(cache);
-            builder.connectTimeout(ApiConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
-            builder.writeTimeout(ApiConfiguration.getConnectTimeOut(), TimeUnit.MILLISECONDS);
-            builder.readTimeout(ApiConfiguration.getReadTimeOut(), TimeUnit.MILLISECONDS);
+            builder.connectTimeout(ApiConfiguration.getConnectTimeOut(), TimeUnit.SECONDS);
+            builder.writeTimeout(ApiConfiguration.getConnectTimeOut(), TimeUnit.SECONDS);
+            builder.readTimeout(ApiConfiguration.getReadTimeOut(), TimeUnit.SECONDS);
             dispatcher.setMaxRequestsPerHost(2);
             dispatcher.setMaxRequests(10);
             builder.dispatcher(dispatcher);
@@ -75,15 +79,9 @@ public class HTTPManager {
             builder.addInterceptor(interceptor);
             okHttpClient = builder.build();
         }
-        if (webParam.connectTimeOut > 0 || webParam.readTimeOut > 0) {
-            return okHttpClient.newBuilder()
-                    .connectTimeout(webParam.connectTimeOut, TimeUnit.MILLISECONDS)
-                    .writeTimeout(webParam.connectTimeOut, TimeUnit.MILLISECONDS)
-                    .readTimeout(webParam.readTimeOut, TimeUnit.MILLISECONDS)
-                    .build();
-        }
         return okHttpClient;
     }
+
 
     /**
      * @param webParam
@@ -101,10 +99,8 @@ public class HTTPManager {
             Set<? extends Map.Entry<String, ?>> entries = webParam.requestParam.entrySet();
             for (Map.Entry<String, ?> entry : entries) {
                 String name = entry.getKey();
-                List<String> list = (List<String>) entry.getValue();
-                for (String value : list) {
-                    urlBuilder.addQueryParameter(name, value);
-                }
+                String value = (String) entry.getValue();
+                urlBuilder.addQueryParameter(name, value);
             }
         }
         builder.url(urlBuilder.build().toString());
@@ -117,7 +113,7 @@ public class HTTPManager {
             builder.headers(headerBuilder.build());
         }
 
-        RequestBody requestBody;
+        RequestBody requestBody = null;
         switch (webParam.httpType) {
             case GET: {
                 builder = builder.get();
@@ -151,8 +147,12 @@ public class HTTPManager {
                 builder = builder.patch(requestBody);
                 break;
             }
-            case MULTIPART: {
-
+        }
+        if (requestBody != null) {
+            try {
+                webParam.requestBodyContentlength = requestBody.contentLength();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
         if (webParam.isCacheEnabled) {
@@ -170,7 +170,7 @@ public class HTTPManager {
      * @param <T>
      * @return
      */
-    <T> Observable<T> generateDownloadObservable(final WebParam webParam) {
+    <T> Observable<T> performDownloadRequest(final WebParam webParam) {
         String baseUrl = ApiConfiguration.getBaseUrl();
         if (!TextUtils.isEmpty(webParam.baseUrl)) {
             baseUrl = webParam.baseUrl;
@@ -203,7 +203,7 @@ public class HTTPManager {
             builder.cacheControl(CacheControl.FORCE_NETWORK);
         }
         Request okHttpRequest = builder.build();
-        client = client.newBuilder().addInterceptor(new Interceptor() {
+        client = client.newBuilder().addNetworkInterceptor(new Interceptor() {
             @Override
             public Response intercept(Chain chain) throws IOException {
                 Response originalResponse = chain.proceed(chain.request());
@@ -214,5 +214,93 @@ public class HTTPManager {
         }).build();
         Call call = client.newCall(okHttpRequest);
         return new RxObservable.DownloadANObservable<>(webParam, call);
+    }
+
+
+    /**
+     * @param webParam
+     * @param <T>
+     * @return
+     */
+    <T> Observable<Response> performMultipartRequest(final WebParam webParam) {
+        String baseUrl = ApiConfiguration.getBaseUrl();
+        if (!TextUtils.isEmpty(webParam.baseUrl)) {
+            baseUrl = webParam.baseUrl;
+        }
+        okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
+        HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + webParam.url).newBuilder();
+        if (webParam.requestParam != null && webParam.requestParam.size() > 0) {
+            Set<? extends Map.Entry<String, ?>> entries = webParam.requestParam.entrySet();
+            for (Map.Entry<String, ?> entry : entries) {
+                String name = entry.getKey();
+                String value = (String) entry.getValue();
+                urlBuilder.addQueryParameter(name, value);
+            }
+        }
+        builder.url(urlBuilder.build().toString());
+
+        if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
+            Headers.Builder headerBuilder = new Headers.Builder();
+            for (Map.Entry<String, String> entry : webParam.headerParam.entrySet()) {
+                headerBuilder.add(entry.getKey(), entry.getValue());
+            }
+            builder.headers(headerBuilder.build());
+        }
+
+        RequestBody requestBody = null;
+        switch (webParam.httpType) {
+            case MULTIPART: {
+                MultipartBody.Builder multipartBuilder = new MultipartBody
+                        .Builder()
+                        .setType(MultipartBody.FORM);
+                try {
+                    for (HashMap.Entry<String, String> entry : webParam.multipartParam.entrySet()) {
+                        multipartBuilder.addPart(Headers.of("Content-Disposition",
+                                "form-data; name=\"" + entry.getKey() + "\""),
+                                RequestBody.create(null, entry.getValue()));
+                    }
+                    for (HashMap.Entry<String, File> entry : webParam.multipartParamFile.entrySet()) {
+                        String fileName = entry.getValue().getName();
+                        RequestBody fileBody = RequestBody.create(MediaType.parse(Utils.getMimeType(fileName)),
+                                entry.getValue());
+                        multipartBuilder.addPart(Headers.of("Content-Disposition",
+                                "form-data; name=\"" + entry.getKey() + "\"; filename=\"" + fileName + "\""),
+                                fileBody);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                requestBody = multipartBuilder.build();
+                break;
+            }
+        }
+        if (requestBody != null) {
+            try {
+                webParam.requestBodyContentlength = requestBody.contentLength();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        if (webParam.isCacheEnabled) {
+            builder.cacheControl(CacheControl.FORCE_CACHE);
+        } else {
+            builder.cacheControl(CacheControl.FORCE_NETWORK);
+        }
+        Request okHttpRequest = builder.build();
+        OkHttpClient okHttpClient = getDefaultOkHttpClient(webParam);
+        okHttpClient = getDefaultOkHttpClient(webParam)
+                .newBuilder()
+                .cache(okHttpClient.cache())
+                .addNetworkInterceptor(new Interceptor() {
+                    @Override
+                    public Response intercept(Chain chain) throws IOException {
+                        Response originalResponse = chain.proceed(chain.request());
+                        return originalResponse.newBuilder()
+                                .body(new HTTPInternalNetworking.ProgressResponseBody(originalResponse.body(), webParam))
+                                .build();
+                    }
+                }).build();
+        Call call = okHttpClient.newCall(okHttpRequest);
+        return new RxObservable.SimpleANObservable<>(webParam, call);
     }
 }

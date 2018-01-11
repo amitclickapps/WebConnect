@@ -39,11 +39,11 @@ public class RxObservable {
                 T object;
                 if (okHttpResponse.isSuccessful()) {
                     if (okHttpResponse.body() != null) {
-                        if (param.model != null) {
-                            object = (T) new Gson().fromJson(okHttpResponse.body().string(), param.model);
-                        } else {
-                            object = (T) new Gson().fromJson(okHttpResponse.body().string(), Object.class);
+                        if (param.analyticsListener != null) {
+                            param.analyticsListener.onReceived(timeTaken, param.requestBodyContentlength,
+                                    okHttpResponse.body().contentLength(), okHttpResponse.cacheResponse() != null);
                         }
+                        object = (T) new Gson().fromJson(okHttpResponse.body().string(), param.model);
                     } else {
                         object = (T) "";
                     }
@@ -87,6 +87,10 @@ public class RxObservable {
                 final long timeTaken = System.currentTimeMillis() - startTime;
                 T object = null;
                 if (okHttpResponse.isSuccessful()) {
+                    if (param.analyticsListener != null) {
+                        param.analyticsListener.onReceived(timeTaken, param.requestBodyContentlength,
+                                okHttpResponse.body().contentLength(), okHttpResponse.cacheResponse() != null);
+                    }
 //                    if (okHttpResponse.body() != null) {
 //                        if (param.model != null) {
 //                            object = (T) new Gson().fromJson(okHttpResponse.body().string(), param.model);

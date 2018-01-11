@@ -4,9 +4,13 @@ package webconnect.com.webconnect;
  * Created by amit on 10/8/17.
  */
 
+import android.util.Log;
+
 import com.androidnetworking.error.ANError;
+import com.androidnetworking.interfaces.AnalyticsListener;
 import com.androidnetworking.interfaces.DownloadListener;
 import com.androidnetworking.interfaces.DownloadProgressListener;
+import com.androidnetworking.interfaces.UploadProgressListener;
 
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
@@ -120,8 +124,22 @@ public class Callback<T> {
 
         @Override
         public void onError(ANError anError) {
-            if (param.callback != null) {
+            if (param.callback != null && anError.getErrorCode() != 0) {
                 param.callback.onError(anError.getCause(), getError(param, anError.getCause()), param.taskId);
+            }
+        }
+    }
+
+    static class Analytics implements AnalyticsListener {
+        String TAG = "Analytics";
+
+        @Override
+        public void onReceived(long timeTakenInMillis, long bytesSent, long bytesReceived, boolean isFromCache) {
+            if (ApiConfiguration.isDebug()) {
+                Log.d(TAG, " timeTakenInMillis : " + timeTakenInMillis);
+                Log.d(TAG, " bytesSent : " + bytesSent);
+                Log.d(TAG, " bytesReceived : " + bytesReceived);
+                Log.d(TAG, " isFromCache : " + isFromCache);
             }
         }
     }
@@ -150,8 +168,26 @@ public class Callback<T> {
         }
     }
 
+    static class UploadProgressCallback implements UploadProgressListener {
+
+        private WebParam param;
+
+        public UploadProgressCallback(WebParam param) {
+            this.param = param;
+        }
+
+        @Override
+        public void onProgress(long bytesDownloaded, long totalBytes) {
+            if (param.progressListener != null) {
+                param.progressListener.update(bytesDownloaded, totalBytes, true);
+            }
+        }
+    }
+
     private static String getError(WebParam param, Throwable t) {
-        String errors;
+        String errors = "";
+        if (param.context == null) return errors;
+
         if (t.getClass().getName().contains(UnknownHostException.class.getName())) {
             errors = param.context.getString(R.string.error_internet_connection);
         } else if (t.getClass().getName().contains(TimeoutException.class.getName())

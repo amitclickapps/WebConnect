@@ -10,6 +10,7 @@ import com.google.gson.GsonBuilder;
 
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Cache;
 import okhttp3.Dispatcher;
 import okhttp3.OkHttpClient;
 
@@ -18,6 +19,7 @@ import okhttp3.OkHttpClient;
  */
 
 public class ApiConfiguration {
+    static int cacheSize = 10 * 1024 * 1024;
     private static String sBASE_URL = "";
     private static long sCONNECT_TIMEOUT_MILLIS = 10 * 1000, sREAD_TIMEOUT_MILLIS = 20 * 1000;
     private static Gson sGSON = new GsonBuilder()
@@ -27,6 +29,10 @@ public class ApiConfiguration {
     private static boolean sIsDEBUG = true;
     private static OkHttpClient okHttpClient = new OkHttpClient();
     private static Dispatcher dispatcher = new Dispatcher();
+
+    public static OkHttpClient getOkHttpClient() {
+        return okHttpClient;
+    }
 
     static String getBaseUrl() {
         return sBASE_URL;
@@ -81,15 +87,20 @@ public class ApiConfiguration {
             sIsDEBUG = isDebug;
             dispatcher.setMaxRequestsPerHost(2);
             dispatcher.setMaxRequests(10);
-            okHttpClient
+            okhttp3.logging.HttpLoggingInterceptor interceptor = new okhttp3.logging.HttpLoggingInterceptor();
+            interceptor.setLevel(sIsDEBUG ?
+                    okhttp3.logging.HttpLoggingInterceptor.Level.BODY : okhttp3.logging.HttpLoggingInterceptor.Level.NONE);
+            okHttpClient = okHttpClient
                     .newBuilder()
+                    .cache(new Cache(context.getCacheDir(), cacheSize))
                     .connectTimeout(connectTimeOut, TimeUnit.SECONDS)
                     .readTimeout(readTimeOut, TimeUnit.SECONDS)
                     .writeTimeout(connectTimeOut, TimeUnit.SECONDS)
                     .dispatcher(dispatcher)
+                    .addInterceptor(interceptor)
                     .build();
             AndroidNetworking.initialize(context, okHttpClient);
-            AndroidNetworking.enableLogging(isDebug ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
         }
     }
+
 }
