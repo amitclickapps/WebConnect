@@ -37,6 +37,10 @@ public class WebParam implements Serializable {
      * The Request param.
      */
     Map<String, ?> requestParam = new LinkedHashMap<>();
+    /**
+     *
+     */
+    Map<String, String> queryParam = new LinkedHashMap<>();
 
     /**
      * The Multipart param.
@@ -196,5 +200,9 @@ public class WebParam implements Serializable {
 
     public WebHandler.AnalyticsListener getAnalyticsListener() {
         return analyticsListener;
+    }
+
+    public Map<String, String> getQueryParam() {
+        return queryParam;
     }
 }

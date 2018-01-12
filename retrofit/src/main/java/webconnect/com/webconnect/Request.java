@@ -157,8 +157,9 @@ public class Request<T extends Request> {
             return (T) this;
         }
 
+        @Override
         public T queryParam(@NonNull Map<String, String> requestParam) {
-            param.requestParam = requestParam;
+            param.queryParam = requestParam;
             return (T) this;
         }
 
@@ -210,7 +211,7 @@ public class Request<T extends Request> {
                     getBuilder = Rx2AndroidNetworking.get(baseUrl + param.url);
                     break;
             }
-            getBuilder.addQueryParameter(param.requestParam)
+            getBuilder.addQueryParameter(param.queryParam)
                     .addHeaders(param.headerParam);
             if (okHttpClient != null) {
                 getBuilder.setOkHttpClient(okHttpClient);
@@ -234,8 +235,8 @@ public class Request<T extends Request> {
             }
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
             HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + param.url).newBuilder();
-            if (param.requestParam != null && param.requestParam.size() > 0) {
-                Set<? extends Map.Entry<String, ?>> entries = param.requestParam.entrySet();
+            if (param.queryParam != null && param.queryParam.size() > 0) {
+                Set<? extends Map.Entry<String, ?>> entries = param.queryParam.entrySet();
                 for (Map.Entry<String, ?> entry : entries) {
                     String name = entry.getKey();
                     String value = (String) entry.getValue();
@@ -293,6 +294,12 @@ public class Request<T extends Request> {
         @Override
         public T baseUrl(@NonNull String url) {
             param.url = url;
+            return (T) this;
+        }
+
+        @Override
+        public T queryParam(@NonNull Map<String, String> requestParam) {
+            param.queryParam = requestParam;
             return (T) this;
         }
 
@@ -400,6 +407,7 @@ public class Request<T extends Request> {
                     break;
             }
             postBuilder.addBodyParameter(param.requestParam)
+                    .addQueryParameter(param.queryParam)
                     .addHeaders(param.headerParam);
             if (param.file != null) {
                 postBuilder.addFileBody(param.file);
@@ -424,7 +432,16 @@ public class Request<T extends Request> {
                 baseUrl = webParam.baseUrl;
             }
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
-            builder.url(baseUrl + webParam.url);
+            HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + param.url).newBuilder();
+            if (param.queryParam != null && param.queryParam.size() > 0) {
+                Set<? extends Map.Entry<String, ?>> entries = param.queryParam.entrySet();
+                for (Map.Entry<String, ?> entry : entries) {
+                    String name = entry.getKey();
+                    String value = (String) entry.getValue();
+                    urlBuilder.addQueryParameter(name, value);
+                }
+            }
+            builder.url(urlBuilder.build().toString());
 
             if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
                 Headers.Builder headerBuilder = new Headers.Builder();
@@ -559,8 +576,9 @@ public class Request<T extends Request> {
             return (T) this;
         }
 
+        @Override
         public T queryParam(@NonNull Map<String, String> requestParam) {
-            param.requestParam = requestParam;
+            param.queryParam = requestParam;
             return (T) this;
         }
 
@@ -586,7 +604,7 @@ public class Request<T extends Request> {
                 baseUrl = ApiConfiguration.getBaseUrl();
             }
             Rx2ANRequest.DownloadBuilder downloadBuilder = Rx2AndroidNetworking.download(param.url, param.file.getParent(), param.file.getName());
-            downloadBuilder.addQueryParameter(param.requestParam)
+            downloadBuilder.addQueryParameter(param.queryParam)
                     .setTag(param.taskId)
                     .addHeaders(param.headerParam);
             if (okHttpClient != null) {
@@ -608,8 +626,8 @@ public class Request<T extends Request> {
             }
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
             HttpUrl.Builder urlBuilder = HttpUrl.parse(param.url).newBuilder();
-            if (param.requestParam != null && param.requestParam.size() > 0) {
-                Set<? extends Map.Entry<String, ?>> entries = param.requestParam.entrySet();
+            if (param.queryParam != null && param.queryParam.size() > 0) {
+                Set<? extends Map.Entry<String, ?>> entries = param.queryParam.entrySet();
                 for (Map.Entry<String, ?> entry : entries) {
                     String name = entry.getKey();
                     String value = (String) entry.getValue();
@@ -732,6 +750,12 @@ public class Request<T extends Request> {
             return (T) this;
         }
 
+        @Override
+        public T queryParam(@NonNull Map<String, String> requestParam) {
+            param.queryParam = requestParam;
+            return (T) this;
+        }
+
         public T multipartParam(@NonNull Map<String, String> multipartParam) {
             param.multipartParam = multipartParam;
             return (T) this;
@@ -770,6 +794,7 @@ public class Request<T extends Request> {
                 multipartBuilder.setOkHttpClient(okHttpClient);
             }
             return multipartBuilder
+                    .addMultipartParameter(param.queryParam)
                     .addMultipartFile(param.multipartParamFile)
                     .addMultipartParameter(param.multipartParam)
                     .build()
@@ -788,8 +813,18 @@ public class Request<T extends Request> {
             if (!TextUtils.isEmpty(param.baseUrl)) {
                 baseUrl = param.baseUrl;
             }
+
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
-            builder.url(baseUrl + param.url);
+            HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + param.url).newBuilder();
+            if (param.queryParam != null && param.queryParam.size() > 0) {
+                Set<? extends Map.Entry<String, ?>> entries = param.queryParam.entrySet();
+                for (Map.Entry<String, ?> entry : entries) {
+                    String name = entry.getKey();
+                    String value = (String) entry.getValue();
+                    urlBuilder.addQueryParameter(name, value);
+                }
+            }
+            builder.url(urlBuilder.build().toString());
 
             if (param.headerParam != null && param.headerParam.size() > 0) {
                 Headers.Builder headerBuilder = new Headers.Builder();
