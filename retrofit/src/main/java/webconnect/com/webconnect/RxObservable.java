@@ -4,11 +4,17 @@ import android.net.TrafficStats;
 
 import com.google.gson.Gson;
 
+import org.apache.commons.io.IOUtils;
+
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+
 import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.disposables.Disposable;
 import okhttp3.Call;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 
 /**
  * Created by clickapps on 29/12/17.
@@ -87,20 +93,22 @@ public class RxObservable {
                 final long timeTaken = System.currentTimeMillis() - startTime;
                 T object = null;
                 if (okHttpResponse.isSuccessful()) {
-                    if (param.analyticsListener != null) {
-                        param.analyticsListener.onReceived(timeTaken, param.requestBodyContentlength,
-                                okHttpResponse.body().contentLength(), okHttpResponse.cacheResponse() != null);
+                    if (okHttpResponse.body() != null) {
+                        if (param.analyticsListener != null) {
+                            param.analyticsListener.onReceived(timeTaken, param.requestBodyContentlength,
+                                    okHttpResponse.body().contentLength(), okHttpResponse.cacheResponse() != null);
+                        }
+                        ResponseBody body = okHttpResponse.body();
+                        OutputStream out = null;
+                        try {
+                            out = new FileOutputStream(param.file);
+                            IOUtils.copy(body.byteStream(), out);
+                            object = (T) param.file;
+                        } finally {
+                            IOUtils.closeQuietly(out);
+                        }
+                        observer.onNext(object);
                     }
-//                    if (okHttpResponse.body() != null) {
-//                        if (param.model != null) {
-//                            object = (T) new Gson().fromJson(okHttpResponse.body().string(), param.model);
-//                        } else {
-//                            object = (T) new Gson().fromJson(okHttpResponse.body().string(), Object.class);
-//                        }
-//                    } else {
-//                        object = (T) "";
-//                    }
-                    observer.onNext(object);
                 } else {
                     if (okHttpResponse.body() != null) {
                         observer.onError(new Throwable(okHttpResponse.body().string()));

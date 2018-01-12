@@ -19,6 +19,7 @@ import java.security.cert.CertificateException;
 import java.util.concurrent.TimeoutException;
 
 import io.reactivex.Observer;
+import io.reactivex.annotations.NonNull;
 import io.reactivex.disposables.Disposable;
 
 /**
@@ -107,7 +108,7 @@ public class Callback<T> {
     }
 
 
-    static class DownloadRequestCallback implements DownloadListener {
+    static class DownloadRequestCallback implements DownloadListener, Observer<Object> {
 
         private WebParam param;
 
@@ -126,6 +127,36 @@ public class Callback<T> {
         public void onError(ANError anError) {
             if (param.callback != null && anError.getErrorCode() != 0) {
                 param.callback.onError(anError.getCause(), getError(param, anError.getCause()), param.taskId);
+            }
+        }
+
+        @Override
+        public void onSubscribe(@NonNull Disposable d) {
+            if (param.dialog != null &&
+                    !param.dialog.isShowing()) {
+                param.dialog.show();
+            }
+        }
+
+        @Override
+        public void onNext(@NonNull Object o) {
+            if (param.callback != null) {
+                param.callback.onSuccess(o, param.taskId, null);
+            }
+        }
+
+        @Override
+        public void onError(@NonNull Throwable e) {
+            if (param.callback != null) {
+                param.callback.onError(e, getError(param, e), param.taskId);
+            }
+        }
+
+        @Override
+        public void onComplete() {
+            if (param.dialog != null &&
+                    param.dialog.isShowing()) {
+                param.dialog.dismiss();
             }
         }
     }

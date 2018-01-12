@@ -26,6 +26,8 @@ public interface IProperties {
 
     IProperties callback(@NonNull WebHandler.OnWebCallback callback);
 
+    IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback);
+
     IProperties callback(@NonNull WebHandler.OnWebCallback callback,
                          @NonNull Class<?> success, @NonNull Class<?> error);
 

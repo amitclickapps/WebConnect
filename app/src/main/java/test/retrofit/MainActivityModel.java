@@ -7,9 +7,11 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -60,8 +62,24 @@ public class MainActivityModel extends AndroidViewModel {
     }
 
     public void get() {
-        WebConnect.with(this.activity, ENDPOINT_GET)
-                .get()
+//        WebConnect.with(this.activity, ENDPOINT_GET)
+//                .get()
+//                .callback(new WebHandler.OnWebCallback() {
+//                    @Override
+//                    public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
+////                        EventBus.getDefault().post(object);
+//                        if (object == null) return;
+//                        get.postValue(object);
+//                    }
+//
+//                    @Override
+//                    public <T> void onError(@Nullable T object, String error, int taskId) {
+//                        get.postValue(object);
+//                    }
+//                }).connect();
+        File file = new File(Environment.getExternalStorageDirectory(), "temp.jpg");
+        WebConnect.with(this.activity, "https://s3.amazonaws.com/uifaces/faces/twitter/calebogden/128.jpg")
+                .download(file)
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {

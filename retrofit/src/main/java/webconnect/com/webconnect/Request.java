@@ -109,6 +109,12 @@ public class Request<T extends Request> {
         }
 
         @Override
+        public IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback) {
+            param.analyticsListener = callback;
+            return (T) this;
+        }
+
+        @Override
         public T callback(@NonNull WebHandler.OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
             param.callback = callback;
             param.model = success;
@@ -162,8 +168,8 @@ public class Request<T extends Request> {
 
         @Override
         public void connect() {
-//            execute().subscribe(new Callback.GetRequestCallback(param));
-            performSimpleRequest().subscribe(new Callback.GetRequestCallback(param));
+            execute().subscribe(new Callback.GetRequestCallback(param));
+//            performGetRequest().subscribe(new Callback.GetRequestCallback(param));
 //            IAPIService request = RetrofitManager.get().createService(param);
 //            if (param.httpType == WebParam.HttpType.GET) {
 //                request.get(param.url, (Map<String, Object>) param.requestParam)
@@ -219,7 +225,7 @@ public class Request<T extends Request> {
         }
 
 
-        public Observable<?> performSimpleRequest() {
+        public Observable<?> performGetRequest() {
             MediaType JSON_MEDIA_TYPE =
                     MediaType.parse("application/json; charset=utf-8");
             String baseUrl = ApiConfiguration.getBaseUrl();
@@ -345,6 +351,12 @@ public class Request<T extends Request> {
             return (T) this;
         }
 
+        @Override
+        public IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback) {
+            param.analyticsListener = callback;
+            return (T) this;
+        }
+
         public T bodyParam(@NonNull Map<String, ?> requestParam) {
             param.requestParam = requestParam;
             return (T) this;
@@ -362,10 +374,6 @@ public class Request<T extends Request> {
         @Override
         public void connect() {
             execute().subscribe(new Callback.PostRequestCallback(param));
-//            HTTPManager.get().performSimpleRequest(param)
-//                    .subscribeOn(Schedulers.io())
-//                    .observeOn(AndroidSchedulers.mainThread())
-//                    .subscribe(new Callback.PostRequestCallback(param));
         }
 
         public Observable<?> execute() {
@@ -408,7 +416,7 @@ public class Request<T extends Request> {
                     .observeOn(AndroidSchedulers.mainThread());
         }
 
-        public Observable<?> performSimpleRequest(final WebParam webParam) {
+        public Observable<?> performPostRequest(final WebParam webParam) {
             MediaType JSON_MEDIA_TYPE =
                     MediaType.parse("application/json; charset=utf-8");
             String baseUrl = ApiConfiguration.getBaseUrl();
@@ -459,7 +467,7 @@ public class Request<T extends Request> {
             if (param.file != null) {
                 //  builder.addFileBody(param.file);
             }
-            if (okHttpClient != null)
+            if (okHttpClient == null)
                 okHttpClient = HTTPManager.get().getDefaultOkHttpClient(webParam);
 
             if (webParam.isCacheEnabled) {
@@ -469,7 +477,9 @@ public class Request<T extends Request> {
             }
             okhttp3.Request okHttpRequest = builder.build();
             Call call = okHttpClient.newCall(okHttpRequest);
-            return new RxObservable.SimpleANObservable<>(webParam, call);
+            return new RxObservable.SimpleANObservable<>(webParam, call)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread());
         }
 
     }
@@ -543,6 +553,12 @@ public class Request<T extends Request> {
             return (T) this;
         }
 
+        @Override
+        public IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback) {
+            param.analyticsListener = callback;
+            return (T) this;
+        }
+
         public T queryParam(@NonNull Map<String, String> requestParam) {
             param.requestParam = requestParam;
             return (T) this;
@@ -560,11 +576,16 @@ public class Request<T extends Request> {
 
         @Override
         public void connect() {
+            download();
+//            performDownloadRequest().subscribe(new Callback.DownloadRequestCallback(param));
+        }
+
+        void download() {
             String baseUrl = param.baseUrl;
             if (TextUtils.isEmpty(baseUrl)) {
                 baseUrl = ApiConfiguration.getBaseUrl();
             }
-            Rx2ANRequest.DownloadBuilder downloadBuilder = Rx2AndroidNetworking.download(baseUrl + param.url, param.file.getPath(), param.file.getName());
+            Rx2ANRequest.DownloadBuilder downloadBuilder = Rx2AndroidNetworking.download(param.url, param.file.getParent(), param.file.getName());
             downloadBuilder.addQueryParameter(param.requestParam)
                     .setTag(param.taskId)
                     .addHeaders(param.headerParam);
@@ -572,23 +593,23 @@ public class Request<T extends Request> {
                 downloadBuilder.setOkHttpClient(okHttpClient);
             }
             Rx2ANRequest okHttpRequest = downloadBuilder.build();
-            okHttpRequest.setAnalyticsListener(new Callback.Analytics());
-            okHttpRequest.setDownloadProgressListener(new Callback.ProgressCallback(param));
-            okHttpRequest.startDownload(new Callback.DownloadRequestCallback(param));
+            okHttpRequest
+                    .setAnalyticsListener(new Callback.Analytics())
+                    .setDownloadProgressListener(new Callback.ProgressCallback(param))
+                    .startDownload(new Callback.DownloadRequestCallback(param));
         }
 
-
-        public Observable<?> performSimpleRequest(final WebParam webParam) {
+        Observable<?> performDownloadRequest() {
             MediaType JSON_MEDIA_TYPE =
                     MediaType.parse("application/json; charset=utf-8");
             String baseUrl = ApiConfiguration.getBaseUrl();
-            if (!TextUtils.isEmpty(webParam.baseUrl)) {
-                baseUrl = webParam.baseUrl;
+            if (!TextUtils.isEmpty(param.baseUrl)) {
+                baseUrl = param.baseUrl;
             }
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
-            HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + webParam.url).newBuilder();
-            if (webParam.requestParam != null && webParam.requestParam.size() > 0) {
-                Set<? extends Map.Entry<String, ?>> entries = webParam.requestParam.entrySet();
+            HttpUrl.Builder urlBuilder = HttpUrl.parse(param.url).newBuilder();
+            if (param.requestParam != null && param.requestParam.size() > 0) {
+                Set<? extends Map.Entry<String, ?>> entries = param.requestParam.entrySet();
                 for (Map.Entry<String, ?> entry : entries) {
                     String name = entry.getKey();
                     String value = (String) entry.getValue();
@@ -597,24 +618,24 @@ public class Request<T extends Request> {
             }
             builder.url(urlBuilder.build().toString());
 
-            if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
+            if (param.headerParam != null && param.headerParam.size() > 0) {
                 Headers.Builder headerBuilder = new Headers.Builder();
-                for (Map.Entry<String, String> entry : webParam.headerParam.entrySet()) {
+                for (Map.Entry<String, String> entry : param.headerParam.entrySet()) {
                     headerBuilder.add(entry.getKey(), entry.getValue());
                 }
                 builder.headers(headerBuilder.build());
             }
 
-            switch (webParam.httpType) {
+            switch (param.httpType) {
                 case GET: {
                     builder = builder.get();
                     break;
                 }
             }
-            if (okHttpClient != null)
-                okHttpClient = HTTPManager.get().getDefaultOkHttpClient(webParam);
+            if (okHttpClient == null)
+                okHttpClient = HTTPManager.get().getDefaultOkHttpClient(param);
 
-            if (webParam.isCacheEnabled) {
+            if (param.isCacheEnabled) {
                 builder.cacheControl(CacheControl.FORCE_CACHE);
             } else {
                 builder.cacheControl(CacheControl.FORCE_NETWORK);
@@ -624,13 +645,15 @@ public class Request<T extends Request> {
                 public Response intercept(Chain chain) throws IOException {
                     Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new HTTPInternalNetworking.ProgressResponseBody(originalResponse.body(), webParam))
+                            .body(new HTTPInternalNetworking.ProgressResponseBody(originalResponse.body(), param))
                             .build();
                 }
             }).build();
             okhttp3.Request okHttpRequest = builder.build();
             Call call = okHttpClient.newCall(okHttpRequest);
-            return new RxObservable.DownloadANObservable<>(webParam, call);
+            return new RxObservable.DownloadANObservable<>(param, call)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread());
         }
     }
 
@@ -703,6 +726,12 @@ public class Request<T extends Request> {
             return (T) this;
         }
 
+        @Override
+        public IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback) {
+            param.analyticsListener = callback;
+            return (T) this;
+        }
+
         public T multipartParam(@NonNull Map<String, String> multipartParam) {
             param.multipartParam = multipartParam;
             return (T) this;
@@ -725,6 +754,7 @@ public class Request<T extends Request> {
         @Override
         public void connect() {
             execute().subscribe(new Callback.UploadRequestCallback(param));
+            // performMultipartRequest().subscribe(new Callback.UploadRequestCallback(param));
         }
 
         public Observable<?> execute() {
@@ -751,37 +781,37 @@ public class Request<T extends Request> {
         }
 
 
-        public Observable<?> performMultipartRequest(final WebParam webParam) {
+        public Observable<?> performMultipartRequest() {
             MediaType JSON_MEDIA_TYPE =
                     MediaType.parse("application/json; charset=utf-8");
             String baseUrl = ApiConfiguration.getBaseUrl();
-            if (!TextUtils.isEmpty(webParam.baseUrl)) {
-                baseUrl = webParam.baseUrl;
+            if (!TextUtils.isEmpty(param.baseUrl)) {
+                baseUrl = param.baseUrl;
             }
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
-            builder.url(baseUrl + webParam.url);
+            builder.url(baseUrl + param.url);
 
-            if (webParam.headerParam != null && webParam.headerParam.size() > 0) {
+            if (param.headerParam != null && param.headerParam.size() > 0) {
                 Headers.Builder headerBuilder = new Headers.Builder();
-                for (Map.Entry<String, String> entry : webParam.headerParam.entrySet()) {
+                for (Map.Entry<String, String> entry : param.headerParam.entrySet()) {
                     headerBuilder.add(entry.getKey(), entry.getValue());
                 }
                 builder.headers(headerBuilder.build());
             }
 
             RequestBody requestBody = null;
-            switch (webParam.httpType) {
+            switch (param.httpType) {
                 case MULTIPART: {
                     MultipartBody.Builder multipartBuilder = new MultipartBody
                             .Builder()
                             .setType(MultipartBody.FORM);
                     try {
-                        for (HashMap.Entry<String, String> entry : webParam.multipartParam.entrySet()) {
+                        for (HashMap.Entry<String, String> entry : param.multipartParam.entrySet()) {
                             multipartBuilder.addPart(Headers.of("Content-Disposition",
                                     "form-data; name=\"" + entry.getKey() + "\""),
                                     RequestBody.create(null, entry.getValue()));
                         }
-                        for (HashMap.Entry<String, File> entry : webParam.multipartParamFile.entrySet()) {
+                        for (HashMap.Entry<String, File> entry : param.multipartParamFile.entrySet()) {
                             String fileName = entry.getValue().getName();
                             RequestBody fileBody = RequestBody.create(MediaType.parse(Utils.getMimeType(fileName)),
                                     entry.getValue());
@@ -798,12 +828,12 @@ public class Request<T extends Request> {
             }
             if (requestBody != null) {
                 try {
-                    webParam.requestBodyContentlength = requestBody.contentLength();
+                    param.requestBodyContentlength = requestBody.contentLength();
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-            if (webParam.isCacheEnabled) {
+            if (param.isCacheEnabled) {
                 builder.cacheControl(CacheControl.FORCE_CACHE);
             } else {
                 builder.cacheControl(CacheControl.FORCE_NETWORK);
@@ -813,13 +843,15 @@ public class Request<T extends Request> {
                 public Response intercept(Chain chain) throws IOException {
                     Response originalResponse = chain.proceed(chain.request());
                     return originalResponse.newBuilder()
-                            .body(new HTTPInternalNetworking.ProgressResponseBody(originalResponse.body(), webParam))
+                            .body(new HTTPInternalNetworking.ProgressResponseBody(originalResponse.body(), param))
                             .build();
                 }
             }).build();
             okhttp3.Request okHttpRequest = builder.build();
             Call call = okHttpClient.newCall(okHttpRequest);
-            return new RxObservable.SimpleANObservable<>(webParam, call);
+            return new RxObservable.SimpleANObservable<>(param, call)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread());
         }
 
     }
