@@ -63,7 +63,7 @@ public class Builder {
     }
 
     public BuilderRequest.DownloadBuilder download(File file) {
-        webParam.httpType = WebParam.HttpType.GET;
+        webParam.httpType = WebParam.HttpType.DOWNLOAD;
         webParam.file = file;
         return new BuilderRequest.DownloadBuilder(webParam);
     }

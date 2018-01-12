@@ -434,10 +434,10 @@ public class Request<T extends Request> {
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
             HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + param.url).newBuilder();
             if (param.queryParam != null && param.queryParam.size() > 0) {
-                Set<? extends Map.Entry<String, ?>> entries = param.queryParam.entrySet();
-                for (Map.Entry<String, ?> entry : entries) {
+                Set<? extends Map.Entry<String, String>> entries = param.queryParam.entrySet();
+                for (Map.Entry<String, String> entry : entries) {
                     String name = entry.getKey();
-                    String value = (String) entry.getValue();
+                    String value = entry.getValue();
                     urlBuilder.addQueryParameter(name, value);
                 }
             }
@@ -604,7 +604,8 @@ public class Request<T extends Request> {
                 baseUrl = ApiConfiguration.getBaseUrl();
             }
             Rx2ANRequest.DownloadBuilder downloadBuilder = Rx2AndroidNetworking.download(param.url, param.file.getParent(), param.file.getName());
-            downloadBuilder.addQueryParameter(param.queryParam)
+            downloadBuilder
+                    .addQueryParameter(param.queryParam)
                     .setTag(param.taskId)
                     .addHeaders(param.headerParam);
             if (okHttpClient != null) {
@@ -627,10 +628,10 @@ public class Request<T extends Request> {
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
             HttpUrl.Builder urlBuilder = HttpUrl.parse(param.url).newBuilder();
             if (param.queryParam != null && param.queryParam.size() > 0) {
-                Set<? extends Map.Entry<String, ?>> entries = param.queryParam.entrySet();
-                for (Map.Entry<String, ?> entry : entries) {
+                Set<? extends Map.Entry<String, String>> entries = param.queryParam.entrySet();
+                for (Map.Entry<String, String> entry : entries) {
                     String name = entry.getKey();
-                    String value = (String) entry.getValue();
+                    String value = entry.getValue();
                     urlBuilder.addQueryParameter(name, value);
                 }
             }
@@ -645,7 +646,7 @@ public class Request<T extends Request> {
             }
 
             switch (param.httpType) {
-                case GET: {
+                case DOWNLOAD: {
                     builder = builder.get();
                     break;
                 }
@@ -817,10 +818,10 @@ public class Request<T extends Request> {
             okhttp3.Request.Builder builder = new okhttp3.Request.Builder();
             HttpUrl.Builder urlBuilder = HttpUrl.parse(baseUrl + param.url).newBuilder();
             if (param.queryParam != null && param.queryParam.size() > 0) {
-                Set<? extends Map.Entry<String, ?>> entries = param.queryParam.entrySet();
-                for (Map.Entry<String, ?> entry : entries) {
+                Set<? extends Map.Entry<String, String>> entries = param.queryParam.entrySet();
+                for (Map.Entry<String, String> entry : entries) {
                     String name = entry.getKey();
-                    String value = (String) entry.getValue();
+                    String value = entry.getValue();
                     urlBuilder.addQueryParameter(name, value);
                 }
             }
