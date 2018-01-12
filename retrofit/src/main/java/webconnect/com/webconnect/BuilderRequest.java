@@ -79,13 +79,6 @@ public class BuilderRequest extends Request<BuilderRequest> {
         }
     }
 
-    public static class DynamicRequestBuilder extends PostRequestBuilder {
-
-        public DynamicRequestBuilder(WebParam param) {
-            super(param);
-        }
-    }
-
     public static class DownloadBuilder extends Request.DownloadBuilder<DownloadBuilder> {
 
         public DownloadBuilder(WebParam param) {
