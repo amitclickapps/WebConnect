@@ -55,7 +55,14 @@ public class Callback<T> {
         @Override
         public void onError(@io.reactivex.annotations.NonNull Throwable e) {
             if (param.callback != null) {
-                param.callback.onError(e, getError(param, e), param.taskId);
+                if (e instanceof ANError) {
+                    Object object = ((ANError) e).getErrorAsObject(param.error);
+                    ((ANError) e).getErrorAsObject(param.error);
+                    param.callback.onError(object, getError(param, e.getCause()), param.taskId);
+                    onComplete();
+                } else {
+                    param.callback.onError(e, getError(param, e), param.taskId);
+                }
             }
         }
 
@@ -94,7 +101,14 @@ public class Callback<T> {
         @Override
         public void onError(@io.reactivex.annotations.NonNull Throwable e) {
             if (param.callback != null) {
-                param.callback.onError(e, getError(param, e), param.taskId);
+                if (e instanceof ANError) {
+                    Object object = ((ANError) e).getErrorAsObject(param.error);
+                    ((ANError) e).getErrorAsObject(param.error);
+                    param.callback.onError(object, getError(param, e.getCause()), param.taskId);
+                    onComplete();
+                } else {
+                    param.callback.onError(e, getError(param, e), param.taskId);
+                }
             }
         }
 
@@ -127,6 +141,7 @@ public class Callback<T> {
         public void onError(ANError anError) {
             if (param.callback != null && anError.getErrorCode() != 0) {
                 param.callback.onError(anError.getCause(), getError(param, anError.getCause()), param.taskId);
+                onComplete();
             }
         }
 
