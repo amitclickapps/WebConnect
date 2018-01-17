@@ -7,11 +7,9 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
 import android.content.Context;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -60,10 +58,19 @@ public class MainActivityModel extends AndroidViewModel {
     public LiveData<Object> getDelete() {
         return delete;
     }
+//    D/OkHttp: --> GET http://api.qa.leasing.clicksandbox.com/v1/app/leases
+//            01-17 12:10:53.411 6765-24325/com.brickspms D/OkHttp: slug: default
+//01-17 12:10:53.411 6765-24325/com.brickspms D/OkHttp: Auth-Token: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0ZW5hbnRfaWQiOjEwODMsImlhdCI6IjIwMTgtMDEtMTIgMDc6NTg6NTAgVVRDIn0.mXkySHf71fa3vdLwUWaIqoqd5nUR2Z3dJ1INq5t4Clo
+//01-17 12:10:53.412 6765-24325/com.brickspms D/OkHttp:
 
     public void get() {
-        WebConnect.with(this.activity, ENDPOINT_GET)
+        Map<String, String> headerMap = new LinkedHashMap<>();
+        headerMap.put("slug", "default");
+        headerMap.put("Auth-Token", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0ZW5hbnRfaWQiOjEwODMsImlhdCI6IjIwMTgtMDEtMTIgMDc6NTg6NTAgVVRDIn0.mXkySHf71fa3vdLwUWaIqoqd5nUR2Z3dJ1INq5t4Clo");
+        WebConnect.with(this.activity, "leases")
                 .get()
+                .baseUrl("http://api.qa.leasing.clicksandbox.com/v1/app/")
+                .headerParam(headerMap)
                 .callback(new WebHandler.OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {

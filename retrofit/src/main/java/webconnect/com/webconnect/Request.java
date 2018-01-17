@@ -92,7 +92,7 @@ public class Request<T extends Request> {
 
         @Override
         public T baseUrl(@NonNull String url) {
-            param.url = url;
+            param.baseUrl = url;
             return (T) this;
         }
 
@@ -170,6 +170,7 @@ public class Request<T extends Request> {
         @Override
         public void connect() {
             execute().subscribe(new Callback.GetRequestCallback(param));
+//            performGetRequest().subscribe(new Callback.GetOkHttpCallback(param));
 //            performGetRequest().subscribe(new Callback.GetRequestCallback(param));
 //            IAPIService request = RetrofitManager.get().createService(param);
 //            if (param.httpType == WebParam.HttpType.GET) {
@@ -293,7 +294,7 @@ public class Request<T extends Request> {
 
         @Override
         public T baseUrl(@NonNull String url) {
-            param.url = url;
+            param.baseUrl = url;
             return (T) this;
         }
 
@@ -511,7 +512,7 @@ public class Request<T extends Request> {
 
         @Override
         public T baseUrl(@NonNull String url) {
-            param.url = url;
+            param.baseUrl = url;
             return (T) this;
         }
 
@@ -686,7 +687,7 @@ public class Request<T extends Request> {
 
         @Override
         public T baseUrl(@NonNull String url) {
-            param.url = url;
+            param.baseUrl = url;
             return (T) this;
         }
 

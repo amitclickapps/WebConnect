@@ -56,12 +56,14 @@ public class Callback<T> {
         public void onError(@io.reactivex.annotations.NonNull Throwable e) {
             if (param.callback != null) {
                 if (e instanceof ANError) {
-                    Object object = ((ANError) e).getErrorAsObject(param.error);
-                    ((ANError) e).getErrorAsObject(param.error);
-                    param.callback.onError(object, getError(param, e.getCause()), param.taskId);
+                    if (((ANError) e).getErrorCode() != 0) {
+                        Object object = ((ANError) e).getErrorAsObject(param.error);
+                        ((ANError) e).getErrorAsObject(param.error);
+                        param.callback.onError(object, ((ANError) e).getErrorBody(), param.taskId);
+                    } else {
+                        param.callback.onError(e, getError(param, e.getCause()), param.taskId);
+                    }
                     onComplete();
-                } else {
-                    param.callback.onError(e, getError(param, e), param.taskId);
                 }
             }
         }
@@ -71,6 +73,22 @@ public class Callback<T> {
             if (param.dialog != null &&
                     param.dialog.isShowing()) {
                 param.dialog.dismiss();
+            }
+        }
+    }
+
+    static class GetOkHttpCallback extends GetRequestCallback {
+        private WebParam param;
+
+        public GetOkHttpCallback(WebParam param) {
+            super(param);
+            this.param = param;
+        }
+
+        @Override
+        public void onError(@NonNull Throwable e) {
+            if (param.callback != null) {
+                param.callback.onError(e, getError(param, e), param.taskId);
             }
         }
     }
@@ -102,12 +120,14 @@ public class Callback<T> {
         public void onError(@io.reactivex.annotations.NonNull Throwable e) {
             if (param.callback != null) {
                 if (e instanceof ANError) {
-                    Object object = ((ANError) e).getErrorAsObject(param.error);
-                    ((ANError) e).getErrorAsObject(param.error);
-                    param.callback.onError(object, getError(param, e.getCause()), param.taskId);
+                    if (((ANError) e).getErrorCode() != 0) {
+                        Object object = ((ANError) e).getErrorAsObject(param.error);
+                        ((ANError) e).getErrorAsObject(param.error);
+                        param.callback.onError(object, getError(param, e), param.taskId);
+                    } else {
+                        param.callback.onError(e, getError(param, e.getCause()), param.taskId);
+                    }
                     onComplete();
-                } else {
-                    param.callback.onError(e, getError(param, e), param.taskId);
                 }
             }
         }
@@ -121,6 +141,21 @@ public class Callback<T> {
         }
     }
 
+    static class PostOkHttpCallback extends GetRequestCallback {
+        private WebParam param;
+
+        public PostOkHttpCallback(WebParam param) {
+            super(param);
+            this.param = param;
+        }
+
+        @Override
+        public void onError(@NonNull Throwable e) {
+            if (param.callback != null) {
+                param.callback.onError(e, getError(param, e), param.taskId);
+            }
+        }
+    }
 
     static class DownloadRequestCallback implements DownloadListener, Observer<Object> {
 
@@ -140,7 +175,8 @@ public class Callback<T> {
         @Override
         public void onError(ANError anError) {
             if (param.callback != null && anError.getErrorCode() != 0) {
-                param.callback.onError(anError.getCause(), getError(param, anError.getCause()), param.taskId);
+                Object object = anError.getErrorAsObject(param.error);
+                param.callback.onError(object, anError.getErrorBody(), param.taskId);
                 onComplete();
             }
         }
