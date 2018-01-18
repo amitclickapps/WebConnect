@@ -1,9 +1,7 @@
 package test.retrofit;
 
-import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -49,24 +47,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
         // Get Observer
-        mainActivityModel.getGet().observe(this, new Observer<Object>() {
-            @Override
-            public void onChanged(@NonNull Object object) {
+        mainActivityModel.getGet().observe(this, object -> {
+            if (object != null) {
                 Toast.makeText(MainActivity.this, object.toString(), Toast.LENGTH_LONG).show();
             }
         });
 
         // Post Observer
-        mainActivityModel.getPost().observe(this, new Observer<Object>() {
-
-            @Override
-            public void onChanged(@Nullable Object o) {
-                if (o == null) return;
-                Toast.makeText(MainActivity.this, o.toString(), Toast.LENGTH_LONG).show();
-            }
+        mainActivityModel.getPost().observe(this, o -> {
+            if (o == null) return;
+            Toast.makeText(MainActivity.this, o.toString(), Toast.LENGTH_LONG).show();
         });
-
-
     }
 
     @Override

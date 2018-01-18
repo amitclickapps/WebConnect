@@ -15,7 +15,7 @@ import java.util.Map;
 
 import retrofit2.Response;
 import webconnect.com.webconnect.WebConnect;
-import webconnect.com.webconnect.WebHandler;
+import webconnect.com.webconnect.listener.OnWebCallback;
 
 /**
  * Created by clickapps on 22/12/17.
@@ -71,7 +71,7 @@ public class MainActivityModel extends AndroidViewModel {
                 .get()
                 .baseUrl("http://api.qa.leasing.clicksandbox.com/v1/app/")
                 .headerParam(headerMap)
-                .callback(new WebHandler.OnWebCallback() {
+                .callback(new OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
                         if (object == null) return;
@@ -92,7 +92,7 @@ public class MainActivityModel extends AndroidViewModel {
         WebConnect.with(this.activity, ENDPOINT_POST)
                 .post()
                 .bodyParam(requestMap)
-                .callback(new WebHandler.OnWebCallback() {
+                .callback(new OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
                         if (object != null) {
@@ -115,7 +115,7 @@ public class MainActivityModel extends AndroidViewModel {
         WebConnect.with(activity, ENDPOINT_PUT)
                 .put()
                 .bodyParam(requestMap)
-                .callback(new WebHandler.OnWebCallback() {
+                .callback(new OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
                         if (object != null) {
@@ -137,7 +137,7 @@ public class MainActivityModel extends AndroidViewModel {
         WebConnect.with(activity, ENDPOINT_PUT)
                 .delete()
                 .bodyParam(requestMap)
-                .callback(new WebHandler.OnWebCallback() {
+                .callback(new OnWebCallback() {
                     @Override
                     public <T> void onSuccess(@Nullable T object, int taskId, Response response) {
                         if (object != null) {
