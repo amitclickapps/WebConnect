@@ -31,6 +31,9 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.logging.HttpLoggingInterceptor;
 import webconnect.com.webconnect.di.IProperties;
+import webconnect.com.webconnect.listener.AnalyticsListener;
+import webconnect.com.webconnect.listener.OnWebCallback;
+import webconnect.com.webconnect.listener.ProgressListener;
 
 /**
  * Created by clickapps on 27/12/17.
@@ -103,19 +106,19 @@ public class Request<T extends Request> {
         }
 
         @Override
-        public T callback(@NonNull WebHandler.OnWebCallback callback) {
+        public T callback(@NonNull OnWebCallback callback) {
             param.callback = callback;
             return (T) this;
         }
 
         @Override
-        public IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback) {
+        public IProperties analyticsListener(@NonNull AnalyticsListener callback) {
             param.analyticsListener = callback;
             return (T) this;
         }
 
         @Override
-        public T callback(@NonNull WebHandler.OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
+        public T callback(@NonNull OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
             param.callback = callback;
             param.model = success;
             param.error = error;
@@ -311,13 +314,13 @@ public class Request<T extends Request> {
         }
 
         @Override
-        public T callback(@NonNull WebHandler.OnWebCallback callback) {
+        public T callback(@NonNull OnWebCallback callback) {
             param.callback = callback;
             return (T) this;
         }
 
         @Override
-        public T callback(@NonNull WebHandler.OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
+        public T callback(@NonNull OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
             param.callback = callback;
             param.model = success;
             param.error = error;
@@ -360,7 +363,7 @@ public class Request<T extends Request> {
         }
 
         @Override
-        public IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback) {
+        public IProperties analyticsListener(@NonNull AnalyticsListener callback) {
             param.analyticsListener = callback;
             return (T) this;
         }
@@ -523,13 +526,13 @@ public class Request<T extends Request> {
         }
 
         @Override
-        public T callback(@NonNull WebHandler.OnWebCallback callback) {
+        public T callback(@NonNull OnWebCallback callback) {
             param.callback = callback;
             return (T) this;
         }
 
         @Override
-        public T callback(@NonNull WebHandler.OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
+        public T callback(@NonNull OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
             param.callback = callback;
             param.model = success;
             param.error = error;
@@ -572,7 +575,7 @@ public class Request<T extends Request> {
         }
 
         @Override
-        public IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback) {
+        public IProperties analyticsListener(@NonNull AnalyticsListener callback) {
             param.analyticsListener = callback;
             return (T) this;
         }
@@ -583,7 +586,7 @@ public class Request<T extends Request> {
             return (T) this;
         }
 
-        public T progressListener(@NonNull WebHandler.ProgressListener callback) {
+        public T progressListener(@NonNull ProgressListener callback) {
             param.progressListener = callback;
             return (T) this;
         }
@@ -698,13 +701,13 @@ public class Request<T extends Request> {
         }
 
         @Override
-        public T callback(@NonNull WebHandler.OnWebCallback callback) {
+        public T callback(@NonNull OnWebCallback callback) {
             param.callback = callback;
             return (T) this;
         }
 
         @Override
-        public T callback(@NonNull WebHandler.OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
+        public T callback(@NonNull OnWebCallback callback, @NonNull Class<?> success, @NonNull Class<?> error) {
             param.callback = callback;
             param.model = success;
             param.error = error;
@@ -747,7 +750,7 @@ public class Request<T extends Request> {
         }
 
         @Override
-        public IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback) {
+        public IProperties analyticsListener(@NonNull AnalyticsListener callback) {
             param.analyticsListener = callback;
             return (T) this;
         }
@@ -768,7 +771,7 @@ public class Request<T extends Request> {
             return (T) this;
         }
 
-        public T progressListener(@NonNull WebHandler.ProgressListener callback) {
+        public T progressListener(@NonNull ProgressListener callback) {
             param.progressListener = callback;
             return (T) this;
         }

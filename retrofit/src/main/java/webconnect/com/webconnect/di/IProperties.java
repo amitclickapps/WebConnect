@@ -5,7 +5,8 @@ import android.support.annotation.NonNull;
 
 import java.util.Map;
 
-import webconnect.com.webconnect.WebHandler;
+import webconnect.com.webconnect.listener.AnalyticsListener;
+import webconnect.com.webconnect.listener.OnWebCallback;
 
 /**
  * Created by amit on 23/9/17.
@@ -19,11 +20,11 @@ public interface IProperties {
 
     IProperties queryParam(@NonNull Map<String, String> queryParam);
 
-    IProperties callback(@NonNull WebHandler.OnWebCallback callback);
+    IProperties callback(@NonNull OnWebCallback callback);
 
-    IProperties analyticsListener(@NonNull WebHandler.AnalyticsListener callback);
+    IProperties analyticsListener(@NonNull AnalyticsListener callback);
 
-    IProperties callback(@NonNull WebHandler.OnWebCallback callback,
+    IProperties callback(@NonNull OnWebCallback callback,
                          @NonNull Class<?> success, @NonNull Class<?> error);
 
     IProperties taskId(int taskId);

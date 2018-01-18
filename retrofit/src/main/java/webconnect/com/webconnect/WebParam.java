@@ -9,6 +9,10 @@ import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import webconnect.com.webconnect.listener.AnalyticsListener;
+import webconnect.com.webconnect.listener.OnWebCallback;
+import webconnect.com.webconnect.listener.ProgressListener;
+
 
 /**
  * The type Web param.
@@ -54,13 +58,13 @@ public class WebParam implements Serializable {
     /**
      * The Callback.
      */
-    WebHandler.OnWebCallback callback;
+    OnWebCallback callback;
     /**
      * Progress during download
      */
-    WebHandler.ProgressListener progressListener;
+    ProgressListener progressListener;
 
-    WebHandler.AnalyticsListener analyticsListener;
+    AnalyticsListener analyticsListener;
     /**
      * Progress Dialog
      */
@@ -166,7 +170,7 @@ public class WebParam implements Serializable {
         return headerParam;
     }
 
-    public WebHandler.OnWebCallback getCallback() {
+    public OnWebCallback getCallback() {
         return callback;
     }
 
@@ -186,7 +190,7 @@ public class WebParam implements Serializable {
         return file;
     }
 
-    public WebHandler.ProgressListener getProgressListener() {
+    public ProgressListener getProgressListener() {
         return progressListener;
     }
 
@@ -198,7 +202,7 @@ public class WebParam implements Serializable {
         return isCacheEnabled;
     }
 
-    public WebHandler.AnalyticsListener getAnalyticsListener() {
+    public AnalyticsListener getAnalyticsListener() {
         return analyticsListener;
     }
 

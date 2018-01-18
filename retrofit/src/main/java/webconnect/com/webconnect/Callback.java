@@ -245,7 +245,7 @@ public class Callback<T> {
         @Override
         public void onProgress(long bytesDownloaded, long totalBytes) {
             if (param.progressListener != null) {
-                param.progressListener.update(bytesDownloaded, totalBytes, true);
+                param.progressListener.update(bytesDownloaded, totalBytes);
             }
         }
     }
@@ -261,7 +261,7 @@ public class Callback<T> {
         @Override
         public void onProgress(long bytesDownloaded, long totalBytes) {
             if (param.progressListener != null) {
-                param.progressListener.update(bytesDownloaded, totalBytes, true);
+                param.progressListener.update(bytesDownloaded, totalBytes);
             }
         }
     }
